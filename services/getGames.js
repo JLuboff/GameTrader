@@ -2,9 +2,9 @@ const querystring = require('querystring'),
       https = require('https');
 
 const getGames = function(game, callback) {
-  const apiQuery = querystring.stringify({
-      apiKey: 'f07eb68ccc69683f2d96ea50b9820ddd'
-  });
+  /*const apiQuery = querystring.stringify({
+      'fields':
+  }); */
 
   const options = {
     hostname: 'api-2445582011268.apicast.io',
@@ -13,7 +13,7 @@ const getGames = function(game, callback) {
       'Accept' : 'application/json'
     },
     port: 443,
-    path: `/games/?search=${game.replace(/\s/g, '%20')}&fields=id,name,summary,total_rating,developers,publishers,cover,release_dates`,
+    path: `/games/?search=${game.replace(/\s/g, '%20')}&fields=id,name,summary,total_rating,developers,publishers,cover,release_dates.platform,release_dates.human&filter[release_dates.platform][eq]=6`,
     method: 'GET'
   };
 
