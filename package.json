@@ -9,7 +9,9 @@
   "author": "Jason Luboff",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.17.2",
+    "connect-flash": "^0.1.1",
     "express": "^4.15.4",
     "express-session": "^1.15.5",
     "hbs": "^4.0.1",
