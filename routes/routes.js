@@ -25,6 +25,7 @@ module.exports = (app, passport, db) => {
 		.post(
 			passport.authenticate('local', { failureRedirect: '/login' }),
 			(req, res) => {
+        console.log(req.user);
 				res.redirect('/');
 			}
 		);
@@ -36,7 +37,6 @@ module.exports = (app, passport, db) => {
 			res.render('signup.hbs', { usernameExists });
 		})
 		.post((req, res) => {
-			console.log(req.body);
 			let salt = bcrypt.genSaltSync(10);
 			let hash = bcrypt.hashSync(req.body.password, salt);
 
@@ -48,7 +48,6 @@ module.exports = (app, passport, db) => {
 				city: req.body.city,
 				state: req.body.state
 			};
-			console.log(user);
 			db
 				.collection('users')
 				.findOne({ username: user.username }, (err, doc) => {
@@ -61,6 +60,11 @@ module.exports = (app, passport, db) => {
 					}
 				});
 		});
+
+  app.route('/profile')
+     .get(isLogged, (req, res) => {
+       console.log(req.user);
+     })
 
 	app.route('/usernameExists').get((req, res) => {
 		req.flash('exists', 'Username is already taken. Please choose another.');
