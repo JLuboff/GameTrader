@@ -7,6 +7,7 @@ const express = require('express'),
       hbs = require('hbs'),
       flash = require('connect-flash'),
       MongoClient = require('mongodb').MongoClient,
+      ObjectID = require('mongodb').ObjectID,
       bcrypt = require('bcryptjs'),
       morgan = require('morgan'),
       bodyParser = require('body-parser'),
@@ -18,19 +19,21 @@ MongoClient.connect(`mongodb://localhost:27017/gameTrader`, (err, db) => {
 			db.collection('users').findOne({ username }, (err, user) => {
 				if (err) return cb(err);
 				if (!user) return cb(null, false);
-				if (!bcrypt.compareSync(password, user.password))
-					return cb(null, false);
+				if (!bcrypt.compareSync(password, user.password)) return cb(null, false);
 				return cb(null, user);
 			});
 		})
 	);
 
 	passport.serializeUser(function(user, cb) {
-		cb(null, user);
+    console.log(`Serialize: ${JSON.stringify(user)}`);
+		cb(null, user._id);
 	});
 
 	passport.deserializeUser(function(username, cb) {
-		db.collection('users').findOne({ username }, function(err, user) {
+    console.log(username);
+		db.collection('users').findOne({ _id: ObjectID(username) }, {_id:1, username: 1, firstName: 1, lastName: 1, city: 1, state: 1}, function(err, user) {
+      console.log(user);
 			if (err) {
 				return cb(err);
 			}

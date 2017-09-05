@@ -23,7 +23,7 @@ const getGames = function(game, callback) {
     res.setEncoding('utf8');
 
     res.on('data', chunk => {
-      console.log(chunk);
+    //  console.log(chunk);
       data += chunk;
     });
 

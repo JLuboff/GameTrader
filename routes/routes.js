@@ -4,6 +4,7 @@ const flash = require('connect-flash'),
 
 module.exports = (app, passport, db) => {
 	const isLogged = (req, res, next) => {
+    //console.log(`isLogged: ${JSON.stringify(req)}`);
 		if (req.isAuthenticated()) {
 			return next();
 		}
@@ -12,7 +13,8 @@ module.exports = (app, passport, db) => {
 
 	app.route('/').get((req, res) => {
 		getGames('gears of war', data => {
-			console.log(data);
+			//console.log(data);
+      console.log(req.session);
 			res.send(data);
 		});
 	});
@@ -25,7 +27,7 @@ module.exports = (app, passport, db) => {
 		.post(
 			passport.authenticate('local', { failureRedirect: '/login' }),
 			(req, res) => {
-        console.log(req.user);
+        console.log(`Login post: ${JSON.stringify(req.user)}`);
 				res.redirect('/');
 			}
 		);
@@ -63,7 +65,8 @@ module.exports = (app, passport, db) => {
 
   app.route('/profile')
      .get(isLogged, (req, res) => {
-       console.log(req.user);
+       console.log(`Profile: ${req.user}`);
+       res.send(`Profile will be here: ${JSON.stringify(req.user)}`);
      })
 
 	app.route('/usernameExists').get((req, res) => {
