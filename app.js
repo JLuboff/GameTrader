@@ -44,7 +44,7 @@ MongoClient.connect(`mongodb://localhost:27017/gameTrader`, (err, db) => {
 	var app = express();
 
 	app.set('view engine', 'hbs');
-	//app.use(morgan('combined'));
+	app.use(morgan('combined'));
 	app.use(flash());
 	app.use(bodyParser.urlencoded({ extended: true }));
 	app.use(

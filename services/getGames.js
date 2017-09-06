@@ -13,7 +13,7 @@ const getGames = function(game, callback) {
       'Accept' : 'application/json'
     },
     port: 443,
-    path: `/games/?search=${game.replace(/\s/g, '%20')}&fields=id,name,summary,total_rating,developers,publishers,cover,release_dates.platform,release_dates.human&filter[release_dates.platform][eq]=6`,
+    path: `/games/?search=${game.replace(/\s/g, '%20')}&fields=id,name,summary,total_rating,developers.name,publishers.name,game_modes.name,cover,release_dates.platform,release_dates.human&expand=developers,publishers,game_modes&filter[release_dates.platform][eq]=48&filter[release_dates.platform][eq]=6&filter[release_dates.platform][eq]=49&limit=5`,
     method: 'GET'
   };
 

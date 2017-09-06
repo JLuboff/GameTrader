@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Game Finder</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.3/css/bulma.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+  <div class="columns">
+    <div class="column is-6 is-offset-3">
+      <div id="inputGame" class="field has-addons">
+        <div class="control">
+          <input type="text" id="getGameInput" placeholder="Game Title" class="input"/>
+        </div>
+        <div class="control">
+          <a id="gameBtn" class="button is-info">Find Game</a>
+        </div>
+      </div>
+      <span id="games"></span>
+    </div>
+  </div>
+
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js'></script>
+<script>
+$(document).ready(() => {
+  $('#gameBtn').click(()=> {
+    $('#games').empty();
+    $.ajax({
+      type: 'POST',
+      url: `/findGames/${$('#getGameInput').val()}`,
+      success: data => {
+        console.log(data);
+        data.forEach(el => {
+          console.log(el.name);
+          let platforms = " ";
+          if(el.release_dates === undefined) return;
+          el.release_dates.forEach(platform => {
+            if(platform.platform === 6){
+              platforms += 'Xbox One ';
+            } else if (platform.platform === 48){
+              platforms += 'Playstation 4 ';
+            } else if (platform.platform === 49){
+              platforms += 'PC ';
+            } else{
+              return;
+            }
+
+          })
+
+        let image = el.cover !== undefined ? el.cover.url.replace('/t_thumb', '') : "";
+        $('#games').append(`
+          <div class="columns">
+            <div class="column is-4">
+            <div class="card" style="margin-bottom: 10px;">
+              <div class="card-image">
+                <figure class="image is-9by16">
+                  <img src="${image}" alt="${el.name}">
+                </figure>
+              </div>
+              <div class="card-content">
+                <div class="content">
+                  <h1 class="title">${el.name}</h1>
+                  <h2 class="subtitle"> Platform(s): ${platforms}</h2>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+          `)
+        });
+    }
+  })
+});
+});
+</script>
+</body>
+</html>

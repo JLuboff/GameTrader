@@ -19,6 +19,17 @@ module.exports = (app, passport, db) => {
 		});
 	});
 
+  app.route('/findGames')
+  .get((req, res) => {
+    res.render('findgames.hbs');
+  });
+  app.route('/findGames/:gameTitle')
+  .post((req, res) => {
+    getGames(req.params.gameTitle, data => {
+      res.json(data);
+    })
+  });
+
 	app
 		.route('/login')
 		.get((req, res) => {
