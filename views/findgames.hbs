@@ -31,21 +31,21 @@ $(document).ready(() => {
         console.log(data);
         data.forEach(el => {
           console.log(el.name);
-          let platforms = " ";
+          let platforms = [];
           if(el.release_dates === undefined) return;
           el.release_dates.forEach(platform => {
-            if(platform.platform === 6){
-              platforms += 'Xbox One ';
-            } else if (platform.platform === 48){
-              platforms += 'Playstation 4 ';
-            } else if (platform.platform === 49){
-              platforms += 'PC ';
+            if(platform.platform === 6 && (platforms.indexOf('Xbox One ') === -1)){
+              platforms.push('Xbox One ');
+            } else if (platform.platform === 48 && (platforms.indexOf('Playstation 4 ') === -1)){
+              platforms.push('Playstation 4 ');
+            } else if (platform.platform === 49 && (platforms.indexOf('PC ') === -1)){
+              platforms.push('PC ');
             } else{
               return;
             }
 
           })
-
+        platforms = platforms.join('');
         let image = el.cover !== undefined ? el.cover.url.replace('/t_thumb', '') : "";
         $('#games').append(`
           <div class="columns">
