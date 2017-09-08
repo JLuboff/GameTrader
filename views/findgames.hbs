@@ -54,7 +54,7 @@ $(document).ready(() => {
 						}
 					});
 					platforms = platforms
-						.map(el => `<button class="button" name="${el}">${el}</button>`)
+						.map(el => `<button class="button" name="${el.replace(' ', '')}">${el}</button>`)
 						.join('');
 					$('#games').append(`
 
