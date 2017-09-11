@@ -85,7 +85,7 @@ $(document).ready(() => {
     console.log(e.target.id);
     $.ajax({
       type: 'POST',
-      url: `/addGame/${e.target.id}`,
+      url: `/addGame/${e.target.id}/Xbox One`,
       success: data => {
         console.log(data);
       }
@@ -97,7 +97,7 @@ $(document).ready(() => {
     console.log(e.target.id);
     $.ajax({
       type: 'POST',
-      url: `/addGame/${e.target.id}`,
+      url: `/addGame/${e.target.id}/Playstation 4`,
       success: data => {
         console.log(data);
       }

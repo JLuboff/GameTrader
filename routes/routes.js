@@ -13,13 +13,10 @@ module.exports = (app, passport, db) => {
 	};
 
 	app.route('/').get((req, res) => {
-		findGameByName('gears of war', data => {
-			//console.log(data);
-      console.log(req.session);
-      console.log(req.user);
-			res.send(data);
+		db.collection('games').find({}).toArray((err, doc) => {
+      res.send(doc);
+    })
 		});
-	});
 
   app.route('/findGames')
   .get(isLogged, (req, res) => {
@@ -32,10 +29,13 @@ module.exports = (app, passport, db) => {
     })
   });
 
-  app.route('/addGame/:gameId')
+  app.route('/addGame/:gameId/:platform')
   .post((req, res) => {
     console.log(req.user._id, req.params.gameId);
     findGameById(req.params.gameId, data => {
+      console.log(data);
+      data[0]['users'] = [req.user._id, req.params.platform];
+      db.collection('games').insertOne(data[0]);
       res.json(data);
     })
   });
