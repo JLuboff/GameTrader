@@ -54,7 +54,7 @@ $(document).ready(() => {
 						}
 					});
 					platforms = platforms
-						.map(el => `<button class="button" name="${el.replace(' ', '')}">${el}</button>`)
+						.map(plat => `<button class="button ${plat.replace(' ', '')}" id="${el.id}">${plat}</button>`)
 						.join('');
 					$('#games').append(`
 
@@ -79,6 +79,31 @@ $(document).ready(() => {
 			}
 		});
 	});
+
+  $(document).on('click', '.XboxOne', (e) => {
+    console.log(`clicked`);
+    console.log(e.target.id);
+    $.ajax({
+      type: 'POST',
+      url: `/addGame/${e.target.id}`,
+      success: data => {
+        console.log(data);
+      }
+    })
+  })
+
+  $(document).on('click', '.Playstation4', (e) => {
+    console.log(`clicked`);
+    console.log(e.target.id);
+    $.ajax({
+      type: 'POST',
+      url: `/addGame/${e.target.id}`,
+      success: data => {
+        console.log(data);
+      }
+    })
+  })
+
 });
 
 </script>

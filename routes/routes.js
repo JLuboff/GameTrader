@@ -1,5 +1,6 @@
 const flash = require('connect-flash'),
-      getGames = require('../services/getGames'),
+      findGameByName = require('../services/findGameByName'),
+      findGameById = require('../services/findGameById'),
       bcrypt = require('bcryptjs');
 
 module.exports = (app, passport, db) => {
@@ -12,20 +13,29 @@ module.exports = (app, passport, db) => {
 	};
 
 	app.route('/').get((req, res) => {
-		getGames('gears of war', data => {
+		findGameByName('gears of war', data => {
 			//console.log(data);
       console.log(req.session);
+      console.log(req.user);
 			res.send(data);
 		});
 	});
 
   app.route('/findGames')
-  .get((req, res) => {
+  .get(isLogged, (req, res) => {
     res.render('findgames.hbs');
   });
   app.route('/findGames/:gameTitle')
   .post((req, res) => {
-    getGames(req.params.gameTitle, data => {
+    findGameByName(req.params.gameTitle, data => {
+      res.json(data);
+    })
+  });
+
+  app.route('/addGame/:gameId')
+  .post((req, res) => {
+    console.log(req.user._id, req.params.gameId);
+    findGameById(req.params.gameId, data => {
       res.json(data);
     })
   });

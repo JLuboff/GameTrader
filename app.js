@@ -1,5 +1,4 @@
 const express = require('express'),
-      getGames = require('./services/getGames'),
       routes = require('./routes/routes'),
       session = require('express-session'),
       passport = require('passport'),
