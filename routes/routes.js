@@ -1,6 +1,7 @@
 const flash = require('connect-flash'),
       findGameByName = require('../services/findGameByName'),
       findGameById = require('../services/findGameById'),
+      ObjectId = require('mongodb').ObjectId,
       bcrypt = require('bcryptjs');
 
 module.exports = (app, passport, db) => {
@@ -31,12 +32,24 @@ module.exports = (app, passport, db) => {
 
   app.route('/addGame/:gameId/:platform')
   .post((req, res) => {
-    console.log(req.user._id, req.params.gameId);
-    findGameById(req.params.gameId, data => {
-      console.log(data);
-      data[0]['users'] = [req.user._id, req.params.platform];
-      db.collection('games').insertOne(data[0]);
-      res.json(data);
+
+    let id = Number(req.params.gameId),
+        user = req.user._id,
+        plat = req.params.platform;
+        console.log(id, user, plat);
+
+    db.collection('games').find({id : id}).toArray((err, doc) => {
+      console.log(doc);
+      if(doc.length){
+        db.collection('games').updateOne({id : id}, {$addToSet: {'owner': [user, plat]}})
+      } else {
+        findGameById(id, data => {
+        //  console.log(data);
+          data[0]['owner'] = [[user, plat]];
+          db.collection('games').insertOne(data[0]);
+          res.json(data);
+        })
+      }
     })
   });
 
@@ -84,10 +97,21 @@ module.exports = (app, passport, db) => {
 				});
 		});
 
+  app.route('/logout')
+    .get((req,res) => {
+      req.logout();
+      res.redirect('/');
+    });
+
   app.route('/profile')
      .get(isLogged, (req, res) => {
+       //Need aggregate to break apart array.
+       db.collection('games').find({'owner': ObjectId(req.user._id)}).toArray((err, doc) => {
+         if (err) throw err;
+         res.send(doc);
+       })
        console.log(`Profile: ${req.user}`);
-       res.send(`Profile will be here: ${JSON.stringify(req.user)}`);
+       //res.send(`Profile will be here: ${JSON.stringify(req.user)}`);
      })
 
 	app.route('/usernameExists').get((req, res) => {
