@@ -2,28 +2,43 @@
 <html>
 <head>
   <title>Game Finder</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.3/css/bulma.css" type="text/css" rel="stylesheet">
+<link rel="stylesheet" href="/css/bootstrap.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" type="text/css" rel="stylesheet">
 </head>
 <body>
-  <div class="columns">
-    <div class="column is-6 is-offset-3">
-      <div id="inputGame" class="field has-addons">
-        <div class="control">
-          <input type="text" id="getGameInput" placeholder="Game Title" class="input"/>
-        </div>
-        <div class="control">
-          <a id="gameBtn" class="button is-info">Find Game</a>
+  <div class="container-fluid" style="margin-top: 50px;">
+    <div class="row">
+      <div class="col-md-1">
+        <ul class="nav nav-pills nav-stacked">
+          <li>Game Trader</li>
+          <li><a href="/">Home</a></li>
+          <li><a href="/findgames">Add Trades</a></li>
+          <li>Account</li>
+          <li><a href="/login">Login</a></li>
+          <li><a href="/profile">Profile</a></li>
+        </ul>
+      </div>
+
+    <div class="col-md-10 col-md-offset-1">
+      <div class="row">
+        <div class="col-md-4">
+      <div id="inputGame" class="input-group">
+          <input type="text" id="getGameInput" placeholder="Game Title" class="form-control"/>
+          <span class="input-group-btn">
+          <a id="gameBtn" class="btn btn-primary">Find Game</a>
+        </span>
         </div>
       </div>
     </div>
+      <div class="row" style="margin-top: 20px;">
+        <div id="games" class="row">
   </div>
-  <div class="columns">
-    <div class="column is-8 is-offset-1">
-      <div class="columns" id="games">
-      </div>
-    </div>
   </div>
+</div>
+</div>
+</div>
+
+
 
 <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js'></script>
 <script>
@@ -54,21 +69,17 @@ $(document).ready(() => {
 						}
 					});
 					platforms = platforms
-						.map(plat => `<button class="button ${plat.replace(' ', '')}" id="${el.id}">${plat}</button>`)
-						.join('');
+						.map(plat => `<button class="btn btn-default ${plat.replace(' ', '')}" id="${el.id}">${plat}</button>`)
+						.join(' ');
 					$('#games').append(`
 
-            <div class="column is-3">
-            <div class="card" style="margin-bottom: 10px;">
-              <div class="card-image">
-                <figure class="image is-1by1">
-                  <img src="https://images.igdb.com/igdb/image/upload/t_cover_big/${el.cover.cloudinary_id}.jpg" alt="${el.name}">
-                </figure>
-              </div>
-              <div class="card-content">
-                <div class="content">
-                  <h4 class="title is-4">${el.name}</h4>
-                  <h5 class="subtitle is-5"> Select Platform: <br> ${platforms}</h5>
+            <div class="col-md-2">
+              <div class="row">
+              <div class="col-md-12">
+                <div class="thumbnail">
+                  <img src="https://images.igdb.com/igdb/image/upload/t_cover_big/${el.cover.cloudinary_id}.jpg" alt="${el.name}" class="img-rounded" style="width:230px; height:315px;">
+                  <h4>${el.name}</h4>
+                  <h5> Select Platform: <br> ${platforms}</h5>
                 </div>
               </div>
             </div>

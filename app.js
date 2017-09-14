@@ -55,6 +55,8 @@ MongoClient.connect(`mongodb://localhost:27017/gameTrader`, (err, db) => {
 	);
 	app.use(passport.initialize());
 	app.use(passport.session());
+  app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
+  app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js'));
 
 	routes(app, passport, db);
 
