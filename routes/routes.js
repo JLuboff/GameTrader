@@ -14,14 +14,17 @@ module.exports = (app, passport, db) => {
 	};
 
 	app.route('/').get((req, res) => {
-		db.collection('games').find({}).toArray((err, doc) => {
-      res.send(doc);
+		db.collection('games').find({}).toArray((err, games) => {
+      console.log(games);
+      let loggedIn = req.user != undefined ? true : false;
+      res.render('index.hbs', {games, loggedIn})
     })
 		});
 
   app.route('/findGames')
   .get(isLogged, (req, res) => {
-    res.render('findgames.hbs');
+    let tradeReqs = req.user.tradeRequests;
+    res.render('findgames.hbs', {tradeReqs, loggedIn: true});
   });
   app.route('/findGames/:gameTitle')
   .post((req, res) => {
@@ -82,7 +85,8 @@ module.exports = (app, passport, db) => {
 				firstName: req.body.firstName,
 				lastName: req.body.lastName,
 				city: req.body.city,
-				state: req.body.state
+				state: req.body.state,
+        tradeRequests : 0
 			};
 			db
 				.collection('users')
@@ -106,10 +110,14 @@ module.exports = (app, passport, db) => {
   app.route('/profile')
      .get(isLogged, (req, res) => {
        //Need aggregate to break apart array.
-       db.collection('games').find({'owner': ObjectId(req.user._id)}).toArray((err, doc) => {
-         if (err) throw err;
+       db.collection('games').aggregate([{$unwind: '$owner'}, {$match: {owner: ObjectId(req.user._id)}}], (err, doc) => {
+         if(err) throw err;
          res.send(doc);
        })
+      /* db.collection('games').find({'owner': ObjectId(req.user._id)}).toArray((err, doc) => {
+         if (err) throw err;
+         res.send(doc);
+       }) */
        console.log(`Profile: ${req.user}`);
        //res.send(`Profile will be here: ${JSON.stringify(req.user)}`);
      })

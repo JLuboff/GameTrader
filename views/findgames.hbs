@@ -8,21 +8,33 @@
 <body>
   <div class="container-fluid" style="margin-top: 50px;">
     <div class="row">
-      <div class="col-md-1">
+      <div class="col-md-2">
         <ul class="nav nav-pills nav-stacked">
           <li>Game Trader</li>
           <li><a href="/">Home</a></li>
           <li><a href="/findgames">Add Trades</a></li>
+          <li><a href="/traderequests">Trade Requests
+            {{#if tradeReqs}}
+            <span id="tradeReqs" class="badge">{{tradeReqs}}</span>
+          {{/if}}</a></li>
           <li>Account</li>
-          <li><a href="/login">Login</a></li>
+          {{#if loggedIn}}
+          <li><a href="/logout">Logout</a></li>
           <li><a href="/profile">Profile</a></li>
+          {{else}}
+          <li><a href="/login">Login</a></li>
+          {{/if}}
+
         </ul>
       </div>
 
-    <div class="col-md-10 col-md-offset-1">
+    <div class="col-md-10">
       <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-5">
+          <h2 class="text-center">Lookup your games below -- <small>Playstation 4 or Xbox One</small></h2>
+
       <div id="inputGame" class="input-group">
+
           <input type="text" id="getGameInput" placeholder="Game Title" class="form-control"/>
           <span class="input-group-btn">
           <a id="gameBtn" class="btn btn-primary">Find Game</a>
@@ -69,7 +81,7 @@ $(document).ready(() => {
 						}
 					});
 					platforms = platforms
-						.map(plat => `<button class="btn btn-default ${plat.replace(' ', '')}" id="${el.id}">${plat}</button>`)
+						.map(plat => `<button class="btn btn-default btn-sm ${plat.replace(' ', '')}" id="${el.id}">${plat}</button>`)
 						.join(' ');
 					$('#games').append(`
 
