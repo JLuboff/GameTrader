@@ -14,7 +14,7 @@ module.exports = (app, passport, db) => {
 	};
 
 	app.route('/').get((req, res) => {
-		db.collection('games').find({}).toArray((err, games) => {
+		db.collection('games').find({}).sort({name: 1}).toArray((err, games) => {
       console.log(games);
       let loggedIn = req.user != undefined ? true : false;
       res.render('index.hbs', {games, loggedIn})
