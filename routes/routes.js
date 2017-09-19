@@ -16,6 +16,14 @@ module.exports = (app, passport, db) => {
 	app.route('/').get((req, res) => {
 		db.collection('games').find({}).sort({name: 1}).toArray((err, games) => {
       console.log(games);
+      let platforms = [];
+      games.forEach(game => { game.owner.forEach(el =>{
+        console.log(el);
+        if(platforms.indexOf(el) === -1){
+          platforms.push(el)
+        }
+      })
+      })
       let loggedIn = req.user != undefined ? true : false;
       res.render('index.hbs', {games, loggedIn})
     })
