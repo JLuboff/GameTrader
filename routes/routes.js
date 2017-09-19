@@ -16,14 +16,7 @@ module.exports = (app, passport, db) => {
 	app.route('/').get((req, res) => {
 		db.collection('games').find({}).sort({name: 1}).toArray((err, games) => {
       console.log(games);
-      let platforms = [];
-      games.forEach(game => { game.owner.forEach(el =>{
-        console.log(el);
-        if(platforms.indexOf(el) === -1){
-          platforms.push(el)
-        }
-      })
-      })
+
       let loggedIn = req.user != undefined ? true : false;
       res.render('index.hbs', {games, loggedIn})
     })
@@ -78,10 +71,10 @@ module.exports = (app, passport, db) => {
 		);
 
 	app
-		.route('/login/signup')
+		.route('/login/register')
 		.get((req, res) => {
 			let usernameExists = req.flash('exists');
-			res.render('signup.hbs', { usernameExists });
+			res.render('register.hbs', { usernameExists });
 		})
 		.post((req, res) => {
 			let salt = bcrypt.genSaltSync(10);
@@ -132,6 +125,6 @@ module.exports = (app, passport, db) => {
 
 	app.route('/usernameExists').get((req, res) => {
 		req.flash('exists', 'Username is already taken. Please choose another.');
-		res.redirect('/login/signup');
+		res.redirect('/login/register');
 	});
 };
