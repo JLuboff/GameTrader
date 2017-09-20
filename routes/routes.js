@@ -111,9 +111,9 @@ module.exports = (app, passport, db) => {
   app.route('/profile')
      .get(isLogged, (req, res) => {
        //Need aggregate to break apart array.
-       db.collection('games').aggregate([{$unwind: '$owner'}, {$match: {owner: ObjectId(req.user._id)}}], (err, doc) => {
+       db.collection('games').aggregate([{$unwind: '$owner'}, {$match: {owner: ObjectId(req.user._id)}}], (err, games) => {
          if(err) throw err;
-         res.send(doc);
+         res.render('profile.hbs', {games, isLogged: true});
        })
       /* db.collection('games').find({'owner': ObjectId(req.user._id)}).toArray((err, doc) => {
          if (err) throw err;
