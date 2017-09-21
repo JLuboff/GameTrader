@@ -32,25 +32,55 @@
           <h5 class="text-muted">Click on game for more info</h5>
         </div>
       </div>
+      <div id="allGames">
       {{#each games}}
       <div class="col-md-3">
-        <div class="row" id="{{id}}">
+        <div class="row">
         <div class="col-md-12" style='box-shadow: 10px 10px 5px #88888888; margin-top: 15px;'>
           <div class="thumbnail">
-            <a data-toggle="modal" data-target="#{{id}}Modal">
-            <img src="https://images.igdb.com/igdb/image/upload/t_cover_big/{{cover.cloudinary_id}}.jpg" alt="{{name}}" class="img-rounded  triggerModal" style="width:245px; height:315px;">
-</a>
-            <h4>{{name}}</h4>
+            <img src="https://images.igdb.com/igdb/image/upload/t_cover_big/{{cover.cloudinary_id}}.jpg" alt="{{name}}" class="img-rounded" style="width:245px; height:315px;">
+            <h4 class="text-right">{{name}} <span class="text-muted">({{owner.[1]}})</span></h4>
+            <button class="btn btn-danger btn-sm removeGame" id="{{id}}">Remove</button>
           </div>
         </div>
       </div>
     </div>
     {{/each}}
   </div>
+  </div>
 </div>
 </div>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js'></script>
   <script src="/js/bootstrap.min.js"></script>
+  <script>
+  $(document).ready(()=> {
+    $('.removeGame').click(function(){
+      console.log($(this).attr('id'));
+      $.ajax({
+        type: 'POST',
+        url: `/remove/${$(this).attr('id')}`,
+        success: data => {
+          data.forEach(game=> {`
+            <div class="col-md-3">
+              <div class="row" id="${game.id}">
+              <div class="col-md-12" style='box-shadow: 10px 10px 5px #88888888; margin-top: 15px;'>
+                <div class="thumbnail">
+                  <img src="https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.cloudinary_id}.jpg" alt="${game.name}" class="img-rounded" style="width:245px; height:315px;">
+                  <h4 class="text-right">${game.name} <span class="text-muted">(${game.owner[1]})</span></h4>
+                  <button class="btn btn-danger btn-sm removeGame" id="${game.id}">Remove</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          `
+          })
+        }
+
+      })
+    })
+
+  })
+  </script>
 
     </body>
     </html>

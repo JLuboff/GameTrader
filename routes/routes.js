@@ -113,15 +113,18 @@ module.exports = (app, passport, db) => {
        //Need aggregate to break apart array.
        db.collection('games').aggregate([{$unwind: '$owner'}, {$match: {owner: ObjectId(req.user._id)}}], (err, games) => {
          if(err) throw err;
-         res.render('profile.hbs', {games, isLogged: true});
+         console.log(games);
+         res.render('profile.hbs', {games, loggedIn: true});
        })
-      /* db.collection('games').find({'owner': ObjectId(req.user._id)}).toArray((err, doc) => {
-         if (err) throw err;
-         res.send(doc);
-       }) */
-       console.log(`Profile: ${req.user}`);
-       //res.send(`Profile will be here: ${JSON.stringify(req.user)}`);
-     })
+     });
+
+  app.route('/remove/:id/platform')
+    .post((req, res) => {
+      db.collection('games').updateOne({id: req.params.id}, {$pull: {'owner': [ObjectId(req.user._id), req.params.platform]}});
+      db.collection('games').aggregate([{$unwind: '$owner'}, {$match: {owner: ObjectId(req.user._id)}}], (err, games) => {
+        res.json(games);
+      })
+    })
 
 	app.route('/usernameExists').get((req, res) => {
 		req.flash('exists', 'Username is already taken. Please choose another.');
