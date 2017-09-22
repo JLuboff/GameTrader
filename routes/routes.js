@@ -6,7 +6,7 @@ const flash = require('connect-flash'),
 
 module.exports = (app, passport, db) => {
 	const isLogged = (req, res, next) => {
-    //console.log(`isLogged: ${JSON.stringify(req)}`);
+		//console.log(`isLogged: ${JSON.stringify(req)}`);
 		if (req.isAuthenticated()) {
 			return next();
 		}
@@ -14,48 +14,53 @@ module.exports = (app, passport, db) => {
 	};
 
 	app.route('/').get((req, res) => {
-		db.collection('games').find({}).sort({name: 1}).toArray((err, games) => {
-      console.log(games);
+		db
+			.collection('games')
+			.find({})
+			.sort({ name: 1 })
+			.toArray((err, games) => {
+				console.log(games);
 
-      let loggedIn = req.user != undefined ? true : false;
-      res.render('index.hbs', {games, loggedIn})
-    })
+				let loggedIn = req.user != undefined ? true : false;
+				res.render('index.hbs', { games, loggedIn });
+			});
+	});
+
+	app.route('/findGames').get(isLogged, (req, res) => {
+		let tradeReqs = req.user.tradeRequests;
+		res.render('findgames.hbs', { tradeReqs, loggedIn: true });
+	});
+	app.route('/findGames/:gameTitle').post((req, res) => {
+		findGameByName(req.params.gameTitle, data => {
+			res.json(data);
 		});
+	});
 
-  app.route('/findGames')
-  .get(isLogged, (req, res) => {
-    let tradeReqs = req.user.tradeRequests;
-    res.render('findgames.hbs', {tradeReqs, loggedIn: true});
-  });
-  app.route('/findGames/:gameTitle')
-  .post((req, res) => {
-    findGameByName(req.params.gameTitle, data => {
-      res.json(data);
-    })
-  });
+	app.route('/addGame/:gameId/:platform').post((req, res) => {
+		let id = Number(req.params.gameId),
+			user = req.user._id,
+			plat = req.params.platform;
+		console.log(id, user, plat);
 
-  app.route('/addGame/:gameId/:platform')
-  .post((req, res) => {
-
-    let id = Number(req.params.gameId),
-        user = req.user._id,
-        plat = req.params.platform;
-        console.log(id, user, plat);
-
-    db.collection('games').find({id : id}).toArray((err, doc) => {
-      console.log(doc);
-      if(doc.length){
-        db.collection('games').updateOne({id : id}, {$addToSet: {'owner': [user, plat]}})
-      } else {
-        findGameById(id, data => {
-        //  console.log(data);
-          data[0]['owner'] = [[user, plat]];
-          db.collection('games').insertOne(data[0]);
-          res.json(data);
-        })
-      }
-    })
-  });
+		db
+			.collection('games')
+			.find({ id: id })
+			.toArray((err, doc) => {
+				console.log(doc);
+				if (doc.length) {
+					db
+						.collection('games')
+						.updateOne({ id: id }, { $addToSet: { owner: [user, plat] } });
+				} else {
+					findGameById(id, data => {
+						//  console.log(data);
+						data[0]['owner'] = [[user, plat]];
+						db.collection('games').insertOne(data[0]);
+						res.json(data);
+					});
+				}
+			});
+	});
 
 	app
 		.route('/login')
@@ -65,7 +70,7 @@ module.exports = (app, passport, db) => {
 		.post(
 			passport.authenticate('local', { failureRedirect: '/login' }),
 			(req, res) => {
-        console.log(`Login post: ${JSON.stringify(req.user)}`);
+				console.log(`Login post: ${JSON.stringify(req.user)}`);
 				res.redirect('/');
 			}
 		);
@@ -87,7 +92,7 @@ module.exports = (app, passport, db) => {
 				lastName: req.body.lastName,
 				city: req.body.city,
 				state: req.body.state,
-        tradeRequests : 0
+				tradeRequests: 0
 			};
 			db
 				.collection('users')
@@ -102,29 +107,50 @@ module.exports = (app, passport, db) => {
 				});
 		});
 
-  app.route('/logout')
-    .get((req,res) => {
-      req.logout();
-      res.redirect('/');
-    });
+	app.route('/logout').get((req, res) => {
+		req.logout();
+		res.redirect('/');
+	});
 
-  app.route('/profile')
-     .get(isLogged, (req, res) => {
-       //Need aggregate to break apart array.
-       db.collection('games').aggregate([{$unwind: '$owner'}, {$match: {owner: ObjectId(req.user._id)}}], (err, games) => {
-         if(err) throw err;
-         console.log(games);
-         res.render('profile.hbs', {games, loggedIn: true});
-       })
-     });
+	app.route('/profile').get(isLogged, (req, res) => {
+		db
+			.collection('games')
+			.aggregate(
+				[{ $unwind: '$owner' }, { $match: { owner: ObjectId(req.user._id) } }],
+				(err, games) => {
+					if (err) throw err;
+					console.log(games);
+					res.render('profile.hbs', { games, loggedIn: true });
+				}
+			);
+	});
 
-  app.route('/remove/:id/platform')
-    .post((req, res) => {
-      db.collection('games').updateOne({id: req.params.id}, {$pull: {'owner': [ObjectId(req.user._id), req.params.platform]}});
-      db.collection('games').aggregate([{$unwind: '$owner'}, {$match: {owner: ObjectId(req.user._id)}}], (err, games) => {
-        res.json(games);
-      })
-    })
+	app.route('/remove/:id/:platform').post((req, res) => {
+		let id = Number(req.params.id),
+			platform = req.params.platform.replace('%20', ' ');
+		console.log(typeof id, platform);
+		db
+			.collection('games')
+			.updateOne(
+				{ id: id },
+				{ $pull: { owner: [ObjectId(req.user._id), platform] } },
+				(err, doc) => {
+					if (err) throw err;
+
+					db
+						.collection('games')
+						.aggregate(
+							[
+								{ $unwind: '$owner' },
+								{ $match: { owner: ObjectId(req.user._id) } }
+							],
+							(err, games) => {
+								res.json(games);
+							}
+						);
+				}
+			);
+	});
 
 	app.route('/usernameExists').get((req, res) => {
 		req.flash('exists', 'Username is already taken. Please choose another.');
