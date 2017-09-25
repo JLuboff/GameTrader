@@ -145,9 +145,26 @@ module.exports = (app, passport, db) => {
 								{ $match: { owner: ObjectId(req.user._id) } }
 							],
 							(err, games) => {
+								if (err) throw err;
 								res.json(games);
 							}
 						);
+				}
+			);
+	});
+
+	app.route('/requestTrade/:platform/:id').get(isLogged, (req, res) => {
+		db
+			.collection('games')
+			.aggregate(
+				[{ $unwind: '$owner' }, { $match: { owner: ObjectId(req.user._id) } }],
+				(err, games) => {
+					if (err) throw err;
+					if (!games.length) {
+						console.log(`No games found: ${games}`);
+					} else {
+						console.log(`User has games: ${games}`);
+					}
 				}
 			);
 	});
