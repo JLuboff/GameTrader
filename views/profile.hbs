@@ -39,8 +39,8 @@
         <div class="col-md-12" style='box-shadow: 10px 10px 5px #88888888; margin-top: 15px;'>
           <div class="thumbnail">
             <img src="https://images.igdb.com/igdb/image/upload/t_cover_big/{{cover.cloudinary_id}}.jpg" alt="{{name}}" class="img-rounded" style="width:245px; height:315px;">
-            <h4 class="text-right">{{name}} <span class="text-muted">({{owner.[1]}})</span></h4>
-            <button class="btn btn-danger btn-sm removeGame" id="{{id}}" platform="{{owner.[1]}}">Remove</button>
+            <h4 class="text-right">{{name}} <span class="text-muted">({{owner.plat}})</span></h4>
+            <button class="btn btn-danger btn-sm removeGame" id="{{id}}" platform="{{owner.plat}}">Remove</button>
           </div>
         </div>
       </div>
@@ -71,8 +71,8 @@ $(document).ready(() => {
 										.cover
 										.cloudinary_id}.jpg" alt="${game.name}" class="img-rounded" style="width:245px; height:315px;">
                   <h4 class="text-right">${game.name} <span class="text-muted">(${game
-						.owner[1]})</span></h4>
-                  <button class="btn btn-danger btn-sm removeGame" id="${game.id}" platform="${game.owner[1]}">Remove</button>
+						.owner.plat})</span></h4>
+                  <button class="btn btn-danger btn-sm removeGame" id="${game.id}" platform="${game.owner.plat}">Remove</button>
                 </div>
               </div>
             </div>

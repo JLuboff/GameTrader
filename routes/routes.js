@@ -6,7 +6,6 @@ const flash = require('connect-flash'),
 
 module.exports = (app, passport, db) => {
 	const isLogged = (req, res, next) => {
-		//console.log(`isLogged: ${JSON.stringify(req)}`);
 		if (req.isAuthenticated()) {
 			return next();
 		}
@@ -16,7 +15,7 @@ module.exports = (app, passport, db) => {
 	app.route('/').get((req, res) => {
 		db
 			.collection('games')
-			.find({})
+			.find({'owner.0': {$exists: true}})
 			.sort({ name: 1 })
 			.toArray((err, games) => {
 				console.log(games);
@@ -50,11 +49,11 @@ module.exports = (app, passport, db) => {
 				if (doc.length) {
 					db
 						.collection('games')
-						.updateOne({ id: id }, { $addToSet: { owner: [user, plat] } });
+						.updateOne({ id: id }, { $addToSet: { owner: {user, plat} } });
 				} else {
 					findGameById(id, data => {
 						//  console.log(data);
-						data[0]['owner'] = [[user, plat]];
+						data[0]['owner'] = [{user, plat}];
 						db.collection('games').insertOne(data[0]);
 						res.json(data);
 					});
@@ -113,14 +112,15 @@ module.exports = (app, passport, db) => {
 	});
 
 	app.route('/profile').get(isLogged, (req, res) => {
+    let tradeReqs = req.user.tradeRequests;
 		db
 			.collection('games')
 			.aggregate(
-				[{ $unwind: '$owner' }, { $match: { owner: ObjectId(req.user._id) } }],
+				[{ $unwind: '$owner' }, { $match: { 'owner.user': ObjectId(req.user._id) } }],
 				(err, games) => {
 					if (err) throw err;
 					console.log(games);
-					res.render('profile.hbs', { games, loggedIn: true });
+					res.render('profile.hbs', { games, loggedIn: true, tradeReqs });
 				}
 			);
 	});
@@ -133,7 +133,7 @@ module.exports = (app, passport, db) => {
 			.collection('games')
 			.updateOne(
 				{ id: id },
-				{ $pull: { owner: [ObjectId(req.user._id), platform] } },
+				{ $pull: { owner: {user: ObjectId(req.user._id), plat: platform}}},
 				(err, doc) => {
 					if (err) throw err;
 
@@ -142,7 +142,7 @@ module.exports = (app, passport, db) => {
 						.aggregate(
 							[
 								{ $unwind: '$owner' },
-								{ $match: { owner: ObjectId(req.user._id) } }
+								{ $match: { 'owner.user': ObjectId(req.user._id) } }
 							],
 							(err, games) => {
 								if (err) throw err;
@@ -154,10 +154,11 @@ module.exports = (app, passport, db) => {
 	});
 
 	app.route('/requestTrade/:platform/:id').get(isLogged, (req, res) => {
+    let tradeReqs = req.user.tradeRequests;
 		db
 			.collection('games')
 			.aggregate(
-				[{ $unwind: '$owner' }, { $match: { owner: ObjectId(req.user._id) } }],
+				[{ $unwind: '$owner' }, { $match: { 'owner.user': ObjectId(req.user._id) } }],
 				(err, games) => {
 					if (err) throw err;
 					if (!games.length) {
