@@ -13,15 +13,25 @@ module.exports = (app, passport, db) => {
 	};
 
 	app.route('/').get((req, res) => {
+    let tradeReqs = req.user == undefined ? 0 : req.user.tradeRequests;
 		db
 			.collection('games')
 			.find({'owner.0': {$exists: true}})
 			.sort({ name: 1 })
 			.toArray((err, games) => {
-				console.log(games);
+
+        games.forEach(el => {
+          let platforms= {}
+          for(let i in el.owner){
+            if(!platforms.hasOwnProperty(el.owner[i].plat)){
+              platforms[el.owner[i].plat.replace(' ', '')] = el.owner[i].plat;
+            }
+          }
+          el['platformsAvail'] = platforms;
+        })
 
 				let loggedIn = req.user != undefined ? true : false;
-				res.render('index.hbs', { games, loggedIn });
+				res.render('index.hbs', { games, loggedIn, tradeReqs });
 			});
 	});
 

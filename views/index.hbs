@@ -55,8 +55,9 @@
       </div>
         <div class="modal-footer">
           Request Trade:
-          <a href="/requestTrade/XboxOne/{{id}}" type="button" class="btn btn-success">Xbox One</a>
-          <a href="/requestTrade/Playstation4/{{id}}" type="button" class="btn btn-success">Playstation 4</a>
+          {{#each platformsAvail}}
+<a href="/requestTrade/{{@key}}/{{../id}}" type="button" class="btn btn-success">{{this}}</a>
+        {{/each}}
         </div>
       </div>
     </div>
