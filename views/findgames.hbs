@@ -30,6 +30,12 @@
     <div class="col-md-10">
       <div class="row">
         <div class="col-md-5">
+          {{#if noGames}}
+          <div class="alert alert-dismissible alert-danger">
+  <button class="close" type="button" data-dismiss="alert">&times;</button>
+  {{noGames}}
+</div>
+          {{/if}}
           <h2 class="text-center">Lookup your games below -- <small>Playstation 4 or Xbox One</small></h2>
 
       <div id="inputGame" class="input-group">
@@ -52,6 +58,7 @@
 
 
 <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js'></script>
+<script src="/js/bootstrap.min.js"></script>
 <script>
 $(document).ready(() => {
 	$('#gameBtn').click(() => {

@@ -36,8 +36,9 @@ module.exports = (app, passport, db) => {
 	});
 
 	app.route('/findGames').get(isLogged, (req, res) => {
-		let tradeReqs = req.user.tradeRequests;
-		res.render('findgames.hbs', { tradeReqs, loggedIn: true });
+		let tradeReqs = req.user.tradeRequests,
+        noGames = req.flash('noGames');
+		res.render('findgames.hbs', { tradeReqs, loggedIn: true, noGames });
 	});
 	app.route('/findGames/:gameTitle').post((req, res) => {
 		findGameByName(req.params.gameTitle, data => {
@@ -173,15 +174,39 @@ module.exports = (app, passport, db) => {
 					if (err) throw err;
 					if (!games.length) {
 						console.log(`No games found: ${games}`);
+            res.redirect('/noGamesForTrade');
 					} else {
 						console.log(`User has games: ${games}`);
+            //insert into both users, Requesting user to show what he requested
+            //User requesting from to show someone is requesting a trade
+            res.redirect('/requestSent');
 					}
 				}
 			);
 	});
 
+  app.route('/tradeRequests')
+    .get(isLogged, (req, res) => {
+      let requestSent = req.flash('requestSent');
+      db.collection('users').findOne({_id: ObjectId(req.user._id)}, {tradeRequests: 1, requestsMade: 1}, (err, doc) => {
+      res.render('traderequests.hbs', {loggedIn: true, requestSent});
+    })
+  });
+
 	app.route('/usernameExists').get((req, res) => {
 		req.flash('exists', 'Username is already taken. Please choose another.');
 		res.redirect('/login/register');
 	});
+
+  app.route('/noGamesForTrade')
+    .get((req, res) => {
+      req.flash('noGames', 'You do not have any games for trade. Please add at least one before attempting a trade.');
+      res.redirect('/findGames');
+    });
+
+    app.route('/requestSent')
+      .get((req, res) => {
+        req.flash('requestSent', 'Your trade request has been sent!');
+        res.redirect('/tradeRequests');
+      });
 };
