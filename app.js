@@ -25,14 +25,14 @@ MongoClient.connect(`mongodb://localhost:27017/gameTrader`, (err, db) => {
 	);
 
 	passport.serializeUser(function(user, cb) {
-    console.log(`Serialize: ${JSON.stringify(user)}`);
+  //  console.log(`Serialize: ${JSON.stringify(user)}`);
 		cb(null, user._id);
 	});
 
 	passport.deserializeUser(function(username, cb) {
-    console.log(username);
+  //  console.log(username);
 		db.collection('users').findOne({ _id: ObjectID(username) }, {_id:1, username: 1, firstName: 1, lastName: 1, city: 1, state: 1, tradeRequests: 1}, function(err, user) {
-      console.log(user);
+    //  console.log(user);
 			if (err) {
 				return cb(err);
 			}

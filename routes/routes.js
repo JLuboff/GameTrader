@@ -36,7 +36,7 @@ module.exports = (app, passport, db) => {
 	});
 
 	app.route('/findGames').get(isLogged, (req, res) => {
-		let tradeReqs = req.user.tradeRequests,
+		let tradeReqs = req.user.tradeRequestsCount,
         noGames = req.flash('noGames');
 		res.render('findgames.hbs', { tradeReqs, loggedIn: true, noGames });
 	});
@@ -50,13 +50,13 @@ module.exports = (app, passport, db) => {
 		let id = Number(req.params.gameId),
 			user = req.user._id,
 			plat = req.params.platform;
-		console.log(id, user, plat);
+		//console.log(id, user, plat);
 
 		db
 			.collection('games')
 			.find({ id: id })
 			.toArray((err, doc) => {
-				console.log(doc);
+				//console.log(doc);
 				if (doc.length) {
 					db
 						.collection('games')
@@ -80,7 +80,7 @@ module.exports = (app, passport, db) => {
 		.post(
 			passport.authenticate('local', { failureRedirect: '/login' }),
 			(req, res) => {
-				console.log(`Login post: ${JSON.stringify(req.user)}`);
+				//console.log(`Login post: ${JSON.stringify(req.user)}`);
 				res.redirect('/');
 			}
 		);
@@ -102,7 +102,8 @@ module.exports = (app, passport, db) => {
 				lastName: req.body.lastName,
 				city: req.body.city,
 				state: req.body.state,
-				tradeRequests: 0
+				tradeRequestsCount: 0,
+        tradeRequests: []
 			};
 			db
 				.collection('users')
@@ -123,14 +124,14 @@ module.exports = (app, passport, db) => {
 	});
 
 	app.route('/profile').get(isLogged, (req, res) => {
-    let tradeReqs = req.user.tradeRequests;
+    let tradeReqs = req.user.tradeRequestsCount;
 		db
 			.collection('games')
 			.aggregate(
 				[{ $unwind: '$owner' }, { $match: { 'owner.user': ObjectId(req.user._id) } }],
 				(err, games) => {
 					if (err) throw err;
-					console.log(games);
+					//console.log(games);
 					res.render('profile.hbs', { games, loggedIn: true, tradeReqs });
 				}
 			);
@@ -139,7 +140,7 @@ module.exports = (app, passport, db) => {
 	app.route('/remove/:id/:platform').post((req, res) => {
 		let id = Number(req.params.id),
 			platform = req.params.platform.replace('%20', ' ');
-		console.log(typeof id, platform);
+		//console.log(typeof id, platform);
 		db
 			.collection('games')
 			.updateOne(
@@ -165,7 +166,10 @@ module.exports = (app, passport, db) => {
 	});
 
 	app.route('/requestTrade/:platform/:id').get(isLogged, (req, res) => {
-    let tradeReqs = req.user.tradeRequests;
+    let tradeReqs = req.user.tradeRequestsCount,
+        id = Number(req.params.id),
+        plat = req.params.platform === 'XboxOne' ? 'Xbox One' : 'Playstation 4';
+
 		db
 			.collection('games')
 			.aggregate(
@@ -179,17 +183,41 @@ module.exports = (app, passport, db) => {
 						console.log(`User has games: ${games}`);
             //insert into both users, Requesting user to show what he requested
             //User requesting from to show someone is requesting a trade
+            db.collection('games').aggregate([{$match: {id: id}}, {$unwind: '$owner'}, {$match: {'owner.plat': plat}}, {$project: {_id: 0, id: 1, name: 1, owner: 1  }}], (err, doc) => {
+              if(err) throw err;
+              console.log(doc)
+              let requester = {
+                gameName: doc[0].name,
+                gameId: doc[0].id,
+                requestTo: doc[0].owner.user,
+                platform: plat,
+                status: 'Pending...'
+              };
+
+              let requestFrom = {
+                gameName: doc[0].name,
+                gameId: doc[0].id,
+                requestFrom: req.user._id,
+                platform: plat,
+                status: 'Pending...'
+              }
+          db.collection('users').updateOne({_id: ObjectId(doc.owner.user)}, {$addToSet: {tradeRequests: requestFrom}, $inc: {tradeRequestsCount: 1}}, {upsert: true});
+           db.collection('users').updateOne({_id: ObjectId(req.user._id)}, {$addToSet: {tradeRequests: requester}}, {upsert: true}, (err, object) => {
+             console.log(object);
             res.redirect('/requestSent');
-					}
-				}
+})
+
+        })
+      }
+      }
 			);
 	});
 
   app.route('/tradeRequests')
     .get(isLogged, (req, res) => {
       let requestSent = req.flash('requestSent');
-      db.collection('users').findOne({_id: ObjectId(req.user._id)}, {tradeRequests: 1, requestsMade: 1}, (err, doc) => {
-      res.render('traderequests.hbs', {loggedIn: true, requestSent});
+      db.collection('users').findOne({_id: ObjectId(req.user._id)}, {tradeRequestsCount: 1, tradeRequests: 1}, (err, doc) => {
+      res.render('traderequests.hbs', {loggedIn: true, requestSent, doc});
     })
   });
 
