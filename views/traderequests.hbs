@@ -29,6 +29,23 @@
   {{#if requestSent}}
     {{requestSent}}
     {{/if}}
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Game</th>
+          <th>Platform</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+    {{#each doc.tradeRequests}}
+      <tr>
+        <td>{{status}}</td>
+        <td>{{gameName}}</td>
+        <td>{{platform}}</td>
+      </tr>
+    {{/each}}
 </div>
 </div>
 </div>

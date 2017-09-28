@@ -96,7 +96,7 @@ module.exports = (app, passport, db) => {
 			let hash = bcrypt.hashSync(req.body.password, salt);
 
 			let user = {
-				username: req.body.username,
+				username: req.body.username.toLowerCase(),
 				password: hash,
 				firstName: req.body.firstName,
 				lastName: req.body.lastName,
@@ -105,6 +105,7 @@ module.exports = (app, passport, db) => {
 				tradeRequestsCount: 0,
         tradeRequests: []
 			};
+      console.log(user);
 			db
 				.collection('users')
 				.findOne({ username: user.username }, (err, doc) => {
@@ -201,7 +202,7 @@ module.exports = (app, passport, db) => {
                 platform: plat,
                 status: 'Pending...'
               }
-          db.collection('users').updateOne({_id: ObjectId(doc.owner.user)}, {$addToSet: {tradeRequests: requestFrom}, $inc: {tradeRequestsCount: 1}}, {upsert: true});
+          db.collection('users').updateOne({_id: ObjectId(doc[0].owner.user)}, {$addToSet: {tradeRequests: requestFrom}, $inc: {tradeRequestsCount: 1}}, {upsert: true});
            db.collection('users').updateOne({_id: ObjectId(req.user._id)}, {$addToSet: {tradeRequests: requester}}, {upsert: true}, (err, object) => {
              console.log(object);
             res.redirect('/requestSent');
