@@ -50,6 +50,8 @@ const flash = require('connect-flash'),
         app.route('/addGame/:gameId/:platform').post((req, res) => {
           let id = Number(req.params.gameId),
           user = req.user._id,
+          email = req.user.email,
+          username = req.user.username,
           plat = req.params.platform;
           //console.log(id, user, plat);
 
@@ -61,11 +63,11 @@ const flash = require('connect-flash'),
             if (doc.length) {
               db
               .collection('games')
-              .updateOne({ id: id }, { $addToSet: { owner: {user, plat} } });
+              .updateOne({ id: id }, { $addToSet: { owner: {user, plat, username} } });
             } else {
               findGameById(id, data => {
                 //  console.log(data);
-                data[0]['owner'] = [{user, plat}];
+                data[0]['owner'] = [{user, plat, username}];
                 db.collection('games').insertOne(data[0]);
                 res.json(data);
               });
@@ -99,8 +101,7 @@ const flash = require('connect-flash'),
           let user = {
             username: req.body.username.toLowerCase(),
             password: hash,
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
+            email: req.body.email,
             city: req.body.city,
             state: req.body.state,
             tradeRequestsCount: 0,
@@ -194,7 +195,7 @@ const flash = require('connect-flash'),
                   let requester = {
                     gameName: doc[0].name,
                     gameId: doc[0].id,
-                    requestTo: doc[0].owner.user,
+                    requestFrom: {id: doc[0].owner.user, username: doc[0].owner.username},
                     platform: plat,
                     status: 'Pending...'
                   };
@@ -202,7 +203,7 @@ const flash = require('connect-flash'),
                   let requestFrom = {
                     gameName: doc[0].name,
                     gameId: doc[0].id,
-                    requestFrom: req.user._id,
+                    requestFrom: {id: req.user._id, username: req.user.username},
                     platform: plat,
                     status: 'Pending...'
                   }
@@ -218,6 +219,7 @@ const flash = require('connect-flash'),
           );
         });
 
+//Define flash routes
         app.route('/tradeRequests')
         .get(isLogged, (req, res) => {
           let requestSent = req.flash('requestSent');

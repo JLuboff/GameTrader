@@ -33,8 +33,7 @@
       <thead>
         <tr>
           <th>Status</th>
-          <th>Game</th>
-          <th>Platform</th>
+          <th>Request</th>
           <th></th>
         </tr>
       </thead>
@@ -42,9 +41,14 @@
     {{#each doc.tradeRequests}}
       <tr>
         <td>{{status}}</td>
-        <td>{{gameName}}</td>
-        <td>{{platform}}</td>
+        {{#if requestTo}}
+        <td>{{requestTo.username}} is requesting {{gameName}} for {{platform}}</td>
         <td><button class="btn btn-primary btn-sm">Cancel</button></td>
+        {{/if}}
+        {{#if requestFrom}}
+        <td>{{requestFrom.username}} is requesting {{gameName}} for {{platform}}</td>
+        <td><button class="btn btn-primary btn-sm">Cancel</button></td>
+        {{/if}}
       </tr>
     {{/each}}
 </div>
