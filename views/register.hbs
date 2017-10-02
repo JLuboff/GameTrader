@@ -25,43 +25,49 @@
             {{/if}}
           </ul>
         </div>
-      <div class="col-md-2 col-md-offset-3">
-        {{#if usernameExists}}
-        <p class="text-danger">{{usernameExists}}</p>
-        {{/if}}
-        <form action="/login/register" method="post">
-          <div class="form-group">
-        <label>Username</label>
-        <input class="form-control" type="text" name="username"/>
+        <div class="col-md-2 col-md-offset-3">
+          {{#if usernameExists}}
+          <p class="text-danger">{{usernameExists}}</p>
+          {{/if}}
+          <form action="/login/register" method="post" onsubmit="return passCheck()">
+            <div class="form-group">
+              <label>Username</label>
+              <input class="form-control" type="text" name="username" required/>
+            </div>
+            <div class="form-group">
+              <label>E-mail</label>
+              <input class="form-control" type="email" name="email" required/>
+              <p class="text-warning">E-mail will only be shared for communication purposes of approved trades</p>
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input class="form-control" type="password" id="password" name="password" minLength="8" required />
+            </div>
+            <div class="form-group">
+              <label>Confirm Password</label>
+              <input class="form-control" type="password" id="password2" name="password2" minLength="8" required />
+            </div>
+            <div class="form-group">
+              <label>City</label>
+              <input class="form-control" type="text" name="city" required/>
+            </div>
+            <div class="form-group">
+              <label>State</label>
+              <input class="form-control" type="text" name="state" maxLength="2" required/>
+            </div>
+            <div class="form-group">
+              <button class="btn btn-primary" type="submit" value="Log In"/>Register</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
-    <div class="form-group">
-        <label>Password</label>
-        <input class="form-control" type="password" name="password"/>
-    </div>
-    <div class="form-group">
-      <label>First Name</label>
-      <input class="form-control" type="text" name="firstName"/>
-    </div>
-    <div class="form-group">
-      <label>Last Name</label>
-      <input class="form-control" type="text" name="lastName"/>
-    </div>
-    <div class="form-group">
-      <label>City</label>
-      <input class="form-control" type="text" name="city"/>
-    </div>
-    <div class="form-group">
-      <label>State</label>
-      <input class="form-control" type="text" name="state"/>
-    </div>
-    <div class="form-group">
-        <button class="btn btn-primary" type="submit" value="Log In"/>Register</button>
-    </div>
-</form>
-</div>
-</div>
-</div>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js'></script>
-<script src="/js/bootstrap.min.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js'></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script>
+    const passCheck = () => {
+      return ($('#password').val() == $('#password2').val());
+    }
+    </script>
   </body>
   </html>
