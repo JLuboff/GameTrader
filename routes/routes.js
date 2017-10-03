@@ -192,10 +192,11 @@ const flash = require('connect-flash'),
                   if(doc[0].owner.user.toString() == req.user._id.toString()){
                     return res.redirect('/ownRequest');
                   }
+
                   let requester = {
                     gameName: doc[0].name,
                     gameId: doc[0].id,
-                    requestFrom: {id: doc[0].owner.user, username: doc[0].owner.username},
+                    requestTo: {id: doc[0].owner.user, username: doc[0].owner.username},
                     platform: plat,
                     status: 'Pending...'
                   };
@@ -203,7 +204,7 @@ const flash = require('connect-flash'),
                   let requestFrom = {
                     gameName: doc[0].name,
                     gameId: doc[0].id,
-                    requestFrom: {id: req.user._id, username: req.user.username},
+                    requestFrom: {id: req.user._id, username: req.user.username, location: req.user.city + ', ' + req.user.state},
                     platform: plat,
                     status: 'Pending...'
                   }

@@ -25,7 +25,7 @@
             {{/if}}
           </ul>
         </div>
-      <div class="col-md-8 col-md-offset-1">
+      <div class="col-md-9">
   {{#if requestSent}}
     {{requestSent}}
     {{/if}}
@@ -34,6 +34,8 @@
         <tr>
           <th>Status</th>
           <th>Request</th>
+          <th>Location</th>
+          <th></th>
           <th></th>
         </tr>
       </thead>
@@ -42,12 +44,16 @@
       <tr>
         <td>{{status}}</td>
         {{#if requestTo}}
-        <td>{{requestTo.username}} is requesting {{gameName}} for {{platform}}</td>
-        <td><button class="btn btn-primary btn-sm">Cancel</button></td>
+        <td>You are requesting {{gameName}} for {{platform}}</td>
+        <td> - </td>
+        <td> - </td>
+        <td><a class="btn btn-success btn-sm">Cancel</a></td>
         {{/if}}
         {{#if requestFrom}}
         <td>{{requestFrom.username}} is requesting {{gameName}} for {{platform}}</td>
-        <td><button class="btn btn-primary btn-sm">Cancel</button></td>
+        <td>{{requestFrom.location}}</td>
+        <td><a href='/viewTrades/{{requestFrom.id}}'>{{requestFrom.username}}'s Games</a></td>
+        <td><a class="btn btn-success btn-sm">Accept</a> <a class="btn btn-danger btn-sm">Deny</a></td>
         {{/if}}
       </tr>
     {{/each}}
