@@ -220,6 +220,18 @@ const flash = require('connect-flash'),
           );
         });
 
+        app.route('/trade/:status/:gameId/:userId')
+          .get((req, res) => {
+            let status = req.params.status,
+                gameId = Number(req.params.gameId),
+                userId = req.params.userId;
+                console.log(status, gameId, userId);
+            if(status === 'cancel'){
+             db.collection('users').updateOne({_id: ObjectId(userId), "tradeRequests.gameId": gameId}, {$set: {"tradeRequests.$.status": "Cancelled"}});
+             db.collection('users').updateOne({_id: ObjectId(req.user._id), "tradeRequests.gameId": gameId}, {$set: {"tradeRequests.$.status": "Cancelled"}});
+            return res.redirect('/tradeRequests');
+            }
+          })
 //Define flash routes
         app.route('/tradeRequests')
         .get(isLogged, (req, res) => {

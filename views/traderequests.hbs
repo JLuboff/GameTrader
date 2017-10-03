@@ -47,13 +47,13 @@
         <td>You are requesting {{gameName}} for {{platform}}</td>
         <td> - </td>
         <td> - </td>
-        <td><a class="btn btn-success btn-sm">Cancel</a></td>
+        <td><a href="/trade/cancel/{{gameId}}/{{requestTo.id}}" class="btn btn-success btn-sm">Cancel</a></td>
         {{/if}}
         {{#if requestFrom}}
         <td>{{requestFrom.username}} is requesting {{gameName}} for {{platform}}</td>
         <td>{{requestFrom.location}}</td>
         <td><a href='/viewTrades/{{requestFrom.id}}'>{{requestFrom.username}}'s Games</a></td>
-        <td><a class="btn btn-success btn-sm">Accept</a> <a class="btn btn-danger btn-sm">Deny</a></td>
+        <td><a href="/trade/accept/{{gameId}}/{{requestFrom.id}}" class="btn btn-success btn-sm">Accept</a> <a href="/trade/deny/{{gameId}}/{{requestFrom.id}}" class="btn btn-danger btn-sm">Deny</a></td>
         {{/if}}
       </tr>
     {{/each}}
