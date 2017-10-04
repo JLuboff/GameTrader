@@ -230,7 +230,15 @@ const flash = require('connect-flash'),
              db.collection('users').updateOne({_id: ObjectId(userId), "tradeRequests.gameId": gameId}, {$set: {"tradeRequests.$.status": "Cancelled"}});
              db.collection('users').updateOne({_id: ObjectId(req.user._id), "tradeRequests.gameId": gameId}, {$set: {"tradeRequests.$.status": "Cancelled"}});
             return res.redirect('/tradeRequests');
-            }
+          } else if (status === 'accept'){
+            db.collection('users').updateOne({_id: ObjectId(userId), 'tradeRequests.gameId': gameId, 'tradeRequests.requestTo.id': ObjectId(req.user._id)}, {$set: {'tradeRequests.$.status': 'Accepted'}});
+            db.collection('users').updateOne({_id: ObjectId(req.user._id), 'tradeRequests.gameId': gameId, 'tradeRequests.requestFrom.id': ObjectId(userId)}, {$set: {'tradeRequests.$.status': 'Accepted'}});
+            return res.redirect('/tradeRequests');
+          } else if (status === 'deny'){
+            db.collection('users').updateOne({_id: ObjectId(userId), 'tradeRequests.gameId': gameId, 'tradeRequests.requestTo.id': ObjectId(req.user._id)}, {$set: {'tradeRequests.$.status': 'Denied'}});
+            db.collection('users').updateOne({_id: ObjectId(req.user._id), 'tradeRequests.gameId': gameId, 'tradeRequests.requestFrom.id': ObjectId(userId)}, {$set: {'tradeRequests.$.status': 'Denied'}});
+            return res.redirect('/tradeRequests');
+          }
           })
 //Define flash routes
         app.route('/tradeRequests')
