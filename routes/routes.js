@@ -75,12 +75,11 @@ const flash = require('connect-flash'),
           });
         });
 
-        app
-        .route('/login')
-        .get((req, res) => {
+        app.route('/login')
+         .get((req, res) => {
           res.render('login.hbs');
         })
-        .post(
+         .post(
           passport.authenticate('local', { failureRedirect: '/login' }),
           (req, res) => {
             //console.log(`Login post: ${JSON.stringify(req.user)}`);
@@ -240,15 +239,17 @@ const flash = require('connect-flash'),
             return res.redirect('/tradeRequests');
           }
           })
-//Define flash routes
+
         app.route('/tradeRequests')
         .get(isLogged, (req, res) => {
           let requestSent = req.flash('requestSent');
+          db.collection('users').findOneAndUpdate({_id: ObjectId(req.user._id)}, {$set: {tradeRequestsCount: 0}});
           db.collection('users').findOne({_id: ObjectId(req.user._id)}, {tradeRequestsCount: 1, tradeRequests: 1}, (err, doc) => {
             res.render('traderequests.hbs', {loggedIn: true, requestSent, doc});
           })
         });
-
+        
+//Define flash routes
         app.route('/usernameExists').get((req, res) => {
           req.flash('exists', 'Username is already taken. Please choose another.');
           res.redirect('/login/register');
