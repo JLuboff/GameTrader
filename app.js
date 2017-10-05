@@ -31,7 +31,7 @@ MongoClient.connect(`mongodb://localhost:27017/gameTrader`, (err, db) => {
 
 	passport.deserializeUser(function(username, cb) {
   //  console.log(username);
-		db.collection('users').findOne({ _id: ObjectID(username) }, {_id:1, username: 1, firstName: 1, lastName: 1, city: 1, state: 1, tradeRequests: 1, tradeRequestsCount: 1}, function(err, user) {
+		db.collection('users').findOne({ _id: ObjectID(username) }, {_id:1, username: 1, firstName: 1, lastName: 1, city: 1, state: 1, tradeRequests: 1, tradeRequestsCount: 1, email: 1}, function(err, user) {
     //  console.log(user);
 			if (err) {
 				return cb(err);

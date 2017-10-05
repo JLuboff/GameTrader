@@ -22,6 +22,7 @@ const flash = require('connect-flash'),
           .toArray((err, games) => {
 
             games.forEach(el => {
+              el['total_rating'] = Math.round(el['total_rating']);
               let platforms= {}
               for(let i in el.owner){
                 if(!platforms.hasOwnProperty(el.owner[i].plat)){
@@ -87,6 +88,15 @@ const flash = require('connect-flash'),
           }
         );
 
+        app.route('/login/update')
+          .post((req, res) => {
+            let email = req.body.email === "" ? req.user.email : req.body.email,
+                city = req.body.city === "" ? req.user.city : req.body.city,
+                state = req.body.state === "" ? req.user.state : req.body.state;
+            db.collection('users').updateOne({_id: ObjectId(req.user._id)}, {$set: {email, city, state}});
+            res.redirect('/profile');
+          })
+
         app
         .route('/login/register')
         .get((req, res) => {
@@ -126,7 +136,10 @@ const flash = require('connect-flash'),
         });
 
         app.route('/profile').get(isLogged, (req, res) => {
-          let tradeReqs = req.user.tradeRequestsCount;
+          let tradeReqs = req.user.tradeRequestsCount,
+              email = req.user.email,
+              city = req.user.city,
+              state = req.user.state;
           db
           .collection('games')
           .aggregate(
@@ -134,7 +147,7 @@ const flash = require('connect-flash'),
             (err, games) => {
               if (err) throw err;
               //console.log(games);
-              res.render('profile.hbs', { games, loggedIn: true, tradeReqs });
+              res.render('profile.hbs', { games, loggedIn: true, tradeReqs, email, city, state});
             }
           );
         });
@@ -248,7 +261,7 @@ const flash = require('connect-flash'),
             res.render('traderequests.hbs', {loggedIn: true, requestSent, doc});
           })
         });
-        
+
 //Define flash routes
         app.route('/usernameExists').get((req, res) => {
           req.flash('exists', 'Username is already taken. Please choose another.');
