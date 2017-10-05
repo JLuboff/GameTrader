@@ -53,7 +53,8 @@ const flash = require('connect-flash'),
           user = req.user._id,
           email = req.user.email,
           username = req.user.username,
-          plat = req.params.platform;
+          plat = req.params.platform,
+          actualUsername = req.user.actualUsername;
           //console.log(id, user, plat);
 
           db
@@ -64,7 +65,7 @@ const flash = require('connect-flash'),
             if (doc.length) {
               db
               .collection('games')
-              .updateOne({ id: id }, { $addToSet: { owner: {user, plat, username} } });
+              .updateOne({ id: id }, { $addToSet: { owner: {user, plat, username, actualUsername} } });
             } else {
               findGameById(id, data => {
                 //  console.log(data);
@@ -109,6 +110,7 @@ const flash = require('connect-flash'),
 
           let user = {
             username: req.body.username.toLowerCase(),
+            actualUsername: req.body.username,
             password: hash,
             email: req.body.email,
             city: req.body.city,
@@ -192,10 +194,8 @@ const flash = require('connect-flash'),
             (err, games) => {
               if (err) throw err;
               if (!games.length) {
-                console.log(`No games found: ${games}`);
                 res.redirect('/noGamesForTrade');
               } else {
-                console.log(`User has games: ${games}`);
                 //insert into both users, Requesting user to show what he requested
                 //User requesting from to show someone is requesting a trade
                 db.collection('games').aggregate([{$match: {id: id}}, {$unwind: '$owner'}, {$match: {'owner.plat': plat}}, {$project: {_id: 0, id: 1, name: 1, owner: 1  }}], (err, doc) => {
@@ -204,11 +204,11 @@ const flash = require('connect-flash'),
                   if(doc[0].owner.user.toString() == req.user._id.toString()){
                     return res.redirect('/ownRequest');
                   }
-
+                  console.log(doc);
                   let requester = {
                     gameName: doc[0].name,
                     gameId: doc[0].id,
-                    requestTo: {id: doc[0].owner.user, username: doc[0].owner.username},
+                    requestTo: {id: doc[0].owner.user, username: doc[0].owner.actualUsername},
                     platform: plat,
                     status: 'Pending...'
                   };
@@ -216,7 +216,7 @@ const flash = require('connect-flash'),
                   let requestFrom = {
                     gameName: doc[0].name,
                     gameId: doc[0].id,
-                    requestFrom: {id: req.user._id, username: req.user.username, location: req.user.city + ', ' + req.user.state},
+                    requestFrom: {id: req.user._id, username: req.user.actualUsername, location: req.user.city + ', ' + req.user.state},
                     platform: plat,
                     status: 'Pending...'
                   }
@@ -258,6 +258,18 @@ const flash = require('connect-flash'),
           let requestSent = req.flash('requestSent');
           db.collection('users').findOneAndUpdate({_id: ObjectId(req.user._id)}, {$set: {tradeRequestsCount: 0}});
           db.collection('users').findOne({_id: ObjectId(req.user._id)}, {tradeRequestsCount: 1, tradeRequests: 1}, (err, doc) => {
+            console.log(doc);
+            doc.tradeRequests.forEach(el => {
+              if(el.status === "Accepted"){
+                el['accepted'] = true;
+
+              } else if (el.status === "Denied"){
+                el['denied'] = true;
+              } else if (el.status === "Cancelled"){
+                el['cancelled'] = true;
+              }
+            });
+            console.log(doc)
             res.render('traderequests.hbs', {loggedIn: true, requestSent, doc});
           })
         });
