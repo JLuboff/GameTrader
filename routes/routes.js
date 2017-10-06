@@ -2,7 +2,8 @@ const flash = require('connect-flash'),
       findGameByName = require('../services/findGameByName'),
       findGameById = require('../services/findGameById'),
       ObjectId = require('mongodb').ObjectId,
-      bcrypt = require('bcryptjs');
+      bcrypt = require('bcryptjs'),
+      async = require('async');
 
       module.exports = (app, passport, db) => {
         const isLogged = (req, res, next) => {
@@ -237,7 +238,7 @@ const flash = require('connect-flash'),
             let status = req.params.status,
                 gameId = Number(req.params.gameId),
                 userId = req.params.userId;
-                console.log(status, gameId, userId);
+
             if(status === 'cancel'){
              db.collection('users').updateOne({_id: ObjectId(userId), "tradeRequests.gameId": gameId}, {$set: {"tradeRequests.$.status": "Cancelled"}});
              db.collection('users').updateOne({_id: ObjectId(req.user._id), "tradeRequests.gameId": gameId}, {$set: {"tradeRequests.$.status": "Cancelled"}});
@@ -258,22 +259,25 @@ const flash = require('connect-flash'),
           let requestSent = req.flash('requestSent');
           db.collection('users').findOneAndUpdate({_id: ObjectId(req.user._id)}, {$set: {tradeRequestsCount: 0}});
           db.collection('users').findOne({_id: ObjectId(req.user._id)}, {tradeRequestsCount: 1, tradeRequests: 1}, (err, doc) => {
-            console.log(doc);
-            doc.tradeRequests.forEach(el => {
-              if(el.status === "Accepted"){
-                el['accepted'] = true;
 
-              } else if (el.status === "Denied"){
-                el['denied'] = true;
-              } else if (el.status === "Cancelled"){
-                el['cancelled'] = true;
+            doc.tradeRequests.forEach(el => {
+              if(el.status !== "Pending..."){
+                el['statusBoolean'] = true;
               }
             });
-            console.log(doc)
+
             res.render('traderequests.hbs', {loggedIn: true, requestSent, doc});
-          })
+        })
         });
 
+        app.route('/viewTrades/:id')
+          .get(isLogged, (req, res) => {
+            let tradeReqs = req.user.tradeRequestsCount;
+            db.collection('games').aggregate([{$match: {'owner.user': ObjectId(req.params.id)}}, {$unwind: '$owner'}, {$match: {'owner.user': ObjectId(req.params.id)}}, {$project: {_id: 0, id: 1, name: 1, summary: 1, total_rating: 1, developers: 1, publishers: 1, cover: 1, owner: 1}}], (err, games) => {
+              console.log(games);
+              res.render('viewtrades.hbs', {games, tradeReqs, loggedIn: true});
+            })
+          });
 //Define flash routes
         app.route('/usernameExists').get((req, res) => {
           req.flash('exists', 'Username is already taken. Please choose another.');
