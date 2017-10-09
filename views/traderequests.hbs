@@ -5,6 +5,32 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/flatly/bootstrap.min.css">
 </head>
 <body>
+  {{#each modalData}}
+    {{#each this}}
+  <div class="modal fade" id="{{@key}}Modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog"  role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+          <h4 class="modal-title">{{@key}}'s Games for Trade</h4>
+        </div>
+        <div class="modal-body">
+
+          <!-- Modal content here -->
+          <div class="row">
+            {{#each this}}
+            <div class="col-md-6">
+              <img src="https://images.igdb.com/igdb/image/upload/t_cover_big/{{cover.cloudinary_id}}.jpg" alt="{{name}}" class="img-rounded" style="width:245px; height:315px;">
+              <p>{{name}} <span class="text-muted">({{owner.plat}})</span></p>
+            </div>
+            {{/each}}
+      </div>
+    </div>
+      </div>
+    </div>
+  </div>
+  {{/each}}
+  {{/each}}
   <div class="container-fluid" style="margin-top: 50px;">
     <div class="row">
       <div class="col-md-2">
@@ -52,7 +78,8 @@
         {{#if requestFrom}}
         <td>{{requestFrom.username}} is requesting {{gameName}} for {{platform}}</td>
         <td>{{requestFrom.location}}</td>
-        <td><a href="/viewTrades/{{requestFrom.id}}">{{requestFrom.username}}'s Games</a></td>
+        <!--<td><a href="/viewTrades/{{requestFrom.id}}">{{requestFrom.username}}'s Games</a></td> -->
+        <td><a data-toggle="modal" data-target="#{{requestFrom.username}}Modal">{{requestFrom.username}}'s Games</a></td>
         <td><a href="/trade/accept/{{gameId}}/{{requestFrom.id}}" class="btn btn-primary btn-sm {{#if statusBoolean}}disabled{{/if}}">Accept</a> <a href="/trade/deny/{{gameId}}/{{requestFrom.id}}" class="btn btn-warning btn-sm {{#if statusBoolean}}disabled{{/if}}">Deny</a></td>
         {{/if}}
       </tr>

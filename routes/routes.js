@@ -259,15 +259,44 @@ const flash = require('connect-flash'),
           let requestSent = req.flash('requestSent');
           db.collection('users').findOneAndUpdate({_id: ObjectId(req.user._id)}, {$set: {tradeRequestsCount: 0}});
           db.collection('users').findOne({_id: ObjectId(req.user._id)}, {tradeRequestsCount: 1, tradeRequests: 1}, (err, doc) => {
-
-            doc.tradeRequests.forEach(el => {
+           let modalData = [];
+          /*  doc.tradeRequests.forEach(el => {
               if(el.status !== "Pending..."){
                 el['statusBoolean'] = true;
               }
+              if(el.requestFrom){
+                db.collection('games').aggregate([{$match: {'owner.user': ObjectId(el.requestFrom.id)}}, {$unwind: '$owner'}, {$match: {'owner.user': ObjectId(el.requestFrom.id)}}, {$project: {_id: 0, id: 1, name: 1, summary: 1, total_rating: 1, cover: 1, 'owner.plat': 1}}], (err, games) => {
+                  console.log(games);
+                  modalData = games;
+                })
+              }
             });
+            console.log(modalData);
+            res.render('traderequests.hbs', {loggedIn: true, requestSent, doc, modalData});
+        */
+        async.each(doc.tradeRequests, (el, cb) => {
 
-            res.render('traderequests.hbs', {loggedIn: true, requestSent, doc});
+          if(el.status !== "Pending..."){
+            el['statusBoolean'] = true;
+          }
+          if(el.requestFrom){
+
+            db.collection('games').aggregate([{$match: {'owner.user': ObjectId(el.requestFrom.id)}}, {$unwind: '$owner'}, {$match: {'owner.user': ObjectId(el.requestFrom.id)}}, {$project: {_id: 0, id: 1, name: 1, summary: 1, total_rating: 1, cover: 1, 'owner.plat': 1}}], (err, games) => {
+
+              let temp = {};
+              temp[el.requestFrom.username] = games;
+                modalData.push(temp);
+
+              cb();
+            })
+          } else {cb();}
+
+        }, (err) => {
+          if(err) throw err;
+          console.log(modalData);
+          res.render('traderequests.hbs', {loggedIn: true, requestSent, doc, modalData});
         })
+      })
         });
 
         app.route('/viewTrades/:id')
