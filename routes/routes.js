@@ -80,10 +80,11 @@ const flash = require('connect-flash'),
 
         app.route('/login')
          .get((req, res) => {
-          res.render('login.hbs');
+           let failedLogin = req.flash('failedLogin');
+          res.render('login.hbs', {failedLogin});
         })
          .post(
-          passport.authenticate('local', { failureRedirect: '/login' }),
+          passport.authenticate('local', { failureRedirect: '/failedLogin'}),
           (req, res) => {
             //console.log(`Login post: ${JSON.stringify(req.user)}`);
             res.redirect('/');
@@ -299,15 +300,12 @@ const flash = require('connect-flash'),
       })
         });
 
-        app.route('/viewTrades/:id')
-          .get(isLogged, (req, res) => {
-            let tradeReqs = req.user.tradeRequestsCount;
-            db.collection('games').aggregate([{$match: {'owner.user': ObjectId(req.params.id)}}, {$unwind: '$owner'}, {$match: {'owner.user': ObjectId(req.params.id)}}, {$project: {_id: 0, id: 1, name: 1, summary: 1, total_rating: 1, developers: 1, publishers: 1, cover: 1, owner: 1}}], (err, games) => {
-              console.log(games);
-              res.render('viewtrades.hbs', {games, tradeReqs, loggedIn: true});
-            })
-          });
 //Define flash routes
+        app.route('/failedLogin')
+          .get((req, res) => {
+            req.flash('failedLogin', 'We do not recognize your username or password. Please try again.');
+            res.redirect('/login');
+          })
         app.route('/usernameExists').get((req, res) => {
           req.flash('exists', 'Username is already taken. Please choose another.');
           res.redirect('/login/register');

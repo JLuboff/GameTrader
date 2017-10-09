@@ -26,6 +26,13 @@
           </ul>
         </div>
       <div class="col-md-2 col-md-offset-3">
+        {{#if failedLogin}}
+        <div class="alert alert-dismissible alert-danger">
+  <button class="close" type="button" data-dismiss="alert">&times;</button>
+{{failedLogin}}
+</div>
+
+        {{/if}}
   <form action="/login" method="post">
     <div class="form-group">
         <label>Username:</label>
