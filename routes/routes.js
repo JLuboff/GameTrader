@@ -4,7 +4,7 @@ const flash = require('connect-flash'),
       ObjectId = require('mongodb').ObjectId,
       bcrypt = require('bcryptjs'),
       async = require('async');
-      
+
 module.exports = (app, passport, db) => {
 	const isLogged = (req, res, next) => {
 		if (req.isAuthenticated()) {
@@ -369,6 +369,9 @@ module.exports = (app, passport, db) => {
 							if (el.status !== 'Pending...') {
 								el['statusBoolean'] = true;
 							}
+              if(el.status === 'Accepted'){
+                el['acceptedBoolean'] = true;
+              }
 							if (el.requestFrom) {
 								db
 									.collection('games')

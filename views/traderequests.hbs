@@ -70,17 +70,30 @@
       <tr>
         <td>{{status}}</td>
         {{#if requestTo}}
+        {{#if acceptedBoolean}}
+        <td>{{requestTo.username}} has accepted your trade! You may continue contact via e-mail: <strong>{{requestTo.email}}</strong></td>
+        <td> - </td>
+        <td> - </td>
+        <td><a href="/trade/cancel/{{_id}}/{{requestTo.id}}" class="btn btn-primary btn-sm {{#if statusBoolean}}disabled{{/if}}">Cancel</a></td>
+        {{else}}
         <td>You are requesting {{gameName}} for {{platform}}</td>
         <td> - </td>
         <td> - </td>
         <td><a href="/trade/cancel/{{_id}}/{{requestTo.id}}" class="btn btn-primary btn-sm {{#if statusBoolean}}disabled{{/if}}">Cancel</a></td>
         {{/if}}
+        {{/if}}
         {{#if requestFrom}}
-        <td>{{requestFrom.username}} is requesting {{gameName}} for {{platform}}</td>
+        {{#if acceptedBoolean}}
+        <td>You have accepted {{requestFrom.username}}'s trade! You may continue contact via e-mail: <strong>{{requestFrom.email}}</strong></td>
         <td>{{requestFrom.location}}</td>
-        
         <td><a data-toggle="modal" data-target="#{{requestFrom.username}}Modal">{{requestFrom.username}}'s Games</a></td>
         <td><a href="/trade/accept/{{_id}}/{{requestFrom.id}}" class="btn btn-primary btn-sm {{#if statusBoolean}}disabled{{/if}}">Accept</a> <a href="/trade/deny/{{_id}}/{{requestFrom.id}}" class="btn btn-warning btn-sm {{#if statusBoolean}}disabled{{/if}}">Deny</a></td>
+        {{else}}
+        <td>{{requestFrom.username}} is requesting {{gameName}} for {{platform}}</td>
+        <td>{{requestFrom.location}}</td>
+        <td><a data-toggle="modal" data-target="#{{requestFrom.username}}Modal">{{requestFrom.username}}'s Games</a></td>
+        <td><a href="/trade/accept/{{_id}}/{{requestFrom.id}}" class="btn btn-primary btn-sm {{#if statusBoolean}}disabled{{/if}}">Accept</a> <a href="/trade/deny/{{_id}}/{{requestFrom.id}}" class="btn btn-warning btn-sm {{#if statusBoolean}}disabled{{/if}}">Deny</a></td>
+        {{/if}}
         {{/if}}
       </tr>
     {{/each}}
