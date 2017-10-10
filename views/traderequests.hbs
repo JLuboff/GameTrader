@@ -73,14 +73,14 @@
         <td>You are requesting {{gameName}} for {{platform}}</td>
         <td> - </td>
         <td> - </td>
-        <td><a href="/trade/cancel/{{gameId}}/{{requestTo.id}}" class="btn btn-primary btn-sm {{#if statusBoolean}}disabled{{/if}}">Cancel</a></td>
+        <td><a href="/trade/cancel/{{_id}}/{{requestTo.id}}" class="btn btn-primary btn-sm {{#if statusBoolean}}disabled{{/if}}">Cancel</a></td>
         {{/if}}
         {{#if requestFrom}}
         <td>{{requestFrom.username}} is requesting {{gameName}} for {{platform}}</td>
         <td>{{requestFrom.location}}</td>
-        <!--<td><a href="/viewTrades/{{requestFrom.id}}">{{requestFrom.username}}'s Games</a></td> -->
+        
         <td><a data-toggle="modal" data-target="#{{requestFrom.username}}Modal">{{requestFrom.username}}'s Games</a></td>
-        <td><a href="/trade/accept/{{gameId}}/{{requestFrom.id}}" class="btn btn-primary btn-sm {{#if statusBoolean}}disabled{{/if}}">Accept</a> <a href="/trade/deny/{{gameId}}/{{requestFrom.id}}" class="btn btn-warning btn-sm {{#if statusBoolean}}disabled{{/if}}">Deny</a></td>
+        <td><a href="/trade/accept/{{_id}}/{{requestFrom.id}}" class="btn btn-primary btn-sm {{#if statusBoolean}}disabled{{/if}}">Accept</a> <a href="/trade/deny/{{_id}}/{{requestFrom.id}}" class="btn btn-warning btn-sm {{#if statusBoolean}}disabled{{/if}}">Deny</a></td>
         {{/if}}
       </tr>
     {{/each}}

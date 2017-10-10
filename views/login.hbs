@@ -25,31 +25,30 @@
             {{/if}}
           </ul>
         </div>
-      <div class="col-md-2 col-md-offset-3">
-        {{#if failedLogin}}
-        <div class="alert alert-dismissible alert-danger">
-  <button class="close" type="button" data-dismiss="alert">&times;</button>
-{{failedLogin}}
-</div>
+        <div class="col-md-2 col-md-offset-3">
+          {{#if failedLogin}}
+          <div class="alert alert-dismissible alert-danger">
+            <button class="close" type="button" data-dismiss="alert">&times;</button>
+            {{failedLogin}}
+          </div>
+          {{/if}}
+          <form action="/login" method="post">
+            <div class="form-group">
+              <label>Username:</label>
+              <input type="text" name="username" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label>Password:</label>
+              <input type="password" name="password" class="form-control" />
+            </div>
 
-        {{/if}}
-  <form action="/login" method="post">
-    <div class="form-group">
-        <label>Username:</label>
-        <input type="text" name="username" class="form-control" />
+            <button type="submit" class="btn btn-primary"/>Login </button>
+            <a href='/login/register' class="btn btn-warning">Register</a>
+          </form>
+        </div>
+      </div>
     </div>
-    <div class="form-group">
-        <label>Password:</label>
-        <input type="password" name="password" class="form-control" />
-    </div>
-
-        <button type="submit" class="btn btn-primary"/>Login </button>
-        <a href='/login/register' class="btn btn-warning">Register</a>
-</form>
-</div>
-</div>
-</div>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js'></script>
-<script src="/js/bootstrap.min.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js'></script>
+    <script src="/js/bootstrap.min.js"></script>
   </body>
   </html>
