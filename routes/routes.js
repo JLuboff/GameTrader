@@ -50,19 +50,16 @@ module.exports = (app, passport, db) => {
 
 	app.route('/addGame/:gameId/:platform').post((req, res) => {
 		let id = Number(req.params.gameId),
-			//_id = new ObjectId(),
 			user = req.user._id,
 			email = req.user.email,
 			username = req.user.username,
 			plat = req.params.platform,
 			actualUsername = req.user.actualUsername;
-		//console.log(id, user, plat);
 
 		db
 			.collection('games')
 			.find({ id: id })
 			.toArray((err, doc) => {
-				//console.log(doc);
 				if (doc.length) {
 					db
 						.collection('games')
@@ -70,6 +67,7 @@ module.exports = (app, passport, db) => {
 							{ id: id },
 							{ $addToSet: { owner: { user, plat, username, actualUsername } } }
 						);
+            res.json(doc);
 				} else {
 					findGameById(id, data => {
 						//  console.log(data);
@@ -449,4 +447,9 @@ module.exports = (app, passport, db) => {
 		req.flash('ownReq', 'Sorry, you can not request a trade with yourself.');
 		res.redirect('/');
 	});
+
+  app.route('/*')
+    .get((req, res) => {
+      res.redirect('/');
+    });
 };
