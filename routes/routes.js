@@ -37,17 +37,6 @@ module.exports = (app, passport, db) => {
 			});
 	});
 
-	app.route('/findGames').get(isLogged, (req, res) => {
-		let tradeReqs = req.user.tradeRequestsCount,
-			noGames = req.flash('noGames');
-		res.render('findgames.hbs', { tradeReqs, loggedIn: true, noGames });
-	});
-	app.route('/findGames/:gameTitle').post((req, res) => {
-		findGameByName(req.params.gameTitle, data => {
-			res.json(data);
-		});
-	});
-
 	app.route('/addGame/:gameId/:platform').post((req, res) => {
 		let id = Number(req.params.gameId),
 			user = req.user._id,
@@ -67,16 +56,26 @@ module.exports = (app, passport, db) => {
 							{ id: id },
 							{ $addToSet: { owner: { user, plat, username, actualUsername } } }
 						);
-            res.json(doc);
+					res.json(doc);
 				} else {
 					findGameById(id, data => {
-						//  console.log(data);
 						data[0]['owner'] = [{ user, plat, username, actualUsername }];
 						db.collection('games').insertOne(data[0]);
 						res.json(data);
 					});
 				}
 			});
+	});
+
+	app.route('/findGames').get(isLogged, (req, res) => {
+		let tradeReqs = req.user.tradeRequestsCount,
+			noGames = req.flash('noGames');
+		res.render('findgames.hbs', { tradeReqs, loggedIn: true, noGames });
+	});
+	app.route('/findGames/:gameTitle').post((req, res) => {
+		findGameByName(req.params.gameTitle, data => {
+			res.json(data);
+		});
 	});
 
 	app
@@ -91,19 +90,6 @@ module.exports = (app, passport, db) => {
 				res.redirect('/');
 			}
 		);
-
-	app.route('/login/update').post((req, res) => {
-		let email = req.body.email === '' ? req.user.email : req.body.email,
-			city = req.body.city === '' ? req.user.city : req.body.city,
-			state = req.body.state === '' ? req.user.state : req.body.state;
-		db
-			.collection('users')
-			.updateOne(
-				{ _id: ObjectId(req.user._id) },
-				{ $set: { email, city, state } }
-			);
-		res.redirect('/profile');
-	});
 
 	app
 		.route('/login/register')
@@ -125,7 +111,7 @@ module.exports = (app, passport, db) => {
 				tradeRequestsCount: 0,
 				tradeRequests: []
 			};
-			console.log(user);
+
 			db
 				.collection('users')
 				.findOne({ username: user.username }, (err, doc) => {
@@ -138,6 +124,19 @@ module.exports = (app, passport, db) => {
 					}
 				});
 		});
+
+	app.route('/login/update').post((req, res) => {
+		let email = req.body.email === '' ? req.user.email : req.body.email,
+			city = req.body.city === '' ? req.user.city : req.body.city,
+			state = req.body.state === '' ? req.user.state : req.body.state;
+		db
+			.collection('users')
+			.updateOne(
+				{ _id: ObjectId(req.user._id) },
+				{ $set: { email, city, state } }
+			);
+		res.redirect('/profile');
+	});
 
 	app.route('/logout').get((req, res) => {
 		req.logout();
@@ -158,7 +157,6 @@ module.exports = (app, passport, db) => {
 				],
 				(err, games) => {
 					if (err) throw err;
-					//console.log(games);
 					res.render('profile.hbs', {
 						games,
 						loggedIn: true,
@@ -174,7 +172,7 @@ module.exports = (app, passport, db) => {
 	app.route('/remove/:id/:platform').post((req, res) => {
 		let id = Number(req.params.id),
 			platform = req.params.platform.replace('%20', ' ');
-		//console.log(typeof id, platform);
+
 		db
 			.collection('games')
 			.updateOne(
@@ -216,8 +214,6 @@ module.exports = (app, passport, db) => {
 					if (!games.length) {
 						res.redirect('/noGamesForTrade');
 					} else {
-						//insert into both users, Requesting user to show what he requested
-						//User requesting from to show someone is requesting a trade
 						db
 							.collection('games')
 							.aggregate(
@@ -233,7 +229,6 @@ module.exports = (app, passport, db) => {
 									if (doc[0].owner.user.toString() == req.user._id.toString()) {
 										return res.redirect('/ownRequest');
 									}
-									console.log(doc);
 									let _id = new ObjectId();
 									let requester = {
 										_id: _id,
@@ -259,16 +254,14 @@ module.exports = (app, passport, db) => {
 										platform: plat,
 										status: 'Pending...'
 									};
-									db
-										.collection('users')
-										.updateOne(
-											{ _id: ObjectId(doc[0].owner.user) },
-											{
-												$addToSet: { tradeRequests: requestFrom },
-												$inc: { tradeRequestsCount: 1 }
-											},
-											{ upsert: true }
-										);
+									db.collection('users').updateOne(
+										{ _id: ObjectId(doc[0].owner.user) },
+										{
+											$addToSet: { tradeRequests: requestFrom },
+											$inc: { tradeRequestsCount: 1 }
+										},
+										{ upsert: true }
+									);
 									db
 										.collection('users')
 										.updateOne(
@@ -276,7 +269,6 @@ module.exports = (app, passport, db) => {
 											{ $addToSet: { tradeRequests: requester } },
 											{ upsert: true },
 											(err, object) => {
-												// console.log(object);
 												res.redirect('/requestSent');
 											}
 										);
@@ -302,36 +294,32 @@ module.exports = (app, passport, db) => {
 				);
 			return res.redirect('/tradeRequests');
 		} else if (status === 'accept') {
-			db
-				.collection('users')
-				.updateOne(
-					{ _id: ObjectId(userId), 'tradeRequests._id': ObjectId(tradeId) },
-					{
-						$set: {
-							'tradeRequests.$.status': 'Accepted',
-							'tradeRequests.$.requestTo.email': req.user.email
-						}
+			db.collection('users').updateOne(
+				{ _id: ObjectId(userId), 'tradeRequests._id': ObjectId(tradeId) },
+				{
+					$set: {
+						'tradeRequests.$.status': 'Accepted',
+						'tradeRequests.$.requestTo.email': req.user.email
 					}
-				);
+				}
+			);
 			db
 				.collection('users')
 				.findOne({ _id: ObjectId(userId) }, { email: 1 }, (err, email) => {
 					if (err) throw err;
 					console.log(email);
-					db
-						.collection('users')
-						.updateOne(
-							{
-								_id: ObjectId(req.user._id),
-								'tradeRequests._id': ObjectId(tradeId)
-							},
-							{
-								$set: {
-									'tradeRequests.$.status': 'Accepted',
-									'tradeRequests.$.requestFrom.email': email.email
-								}
+					db.collection('users').updateOne(
+						{
+							_id: ObjectId(req.user._id),
+							'tradeRequests._id': ObjectId(tradeId)
+						},
+						{
+							$set: {
+								'tradeRequests.$.status': 'Accepted',
+								'tradeRequests.$.requestFrom.email': email.email
 							}
-						);
+						}
+					);
 					return res.redirect('/tradeRequests');
 				});
 		} else if (status === 'deny') {
@@ -367,37 +355,32 @@ module.exports = (app, passport, db) => {
 							if (el.status !== 'Pending...') {
 								el['statusBoolean'] = true;
 							}
-              if(el.status === 'Accepted'){
-                el['acceptedBoolean'] = true;
-              }
+							if (el.status === 'Accepted') {
+								el['acceptedBoolean'] = true;
+							}
 							if (el.requestFrom) {
-								db
-									.collection('games')
-									.aggregate(
-										[
-											{ $match: { 'owner.user': ObjectId(el.requestFrom.id) } },
-											{ $unwind: '$owner' },
-											{ $match: { 'owner.user': ObjectId(el.requestFrom.id) } },
-											{
-												$project: {
-													_id: 0,
-													id: 1,
-													name: 1,
-													summary: 1,
-													total_rating: 1,
-													cover: 1,
-													'owner.plat': 1
-												}
-											}
-										],
-										(err, games) => {
-											let temp = {};
-											temp[el.requestFrom.username] = games;
-											modalData.push(temp);
-
-											cb();
+								db.collection('games').aggregate([
+									{ $match: { 'owner.user': ObjectId(el.requestFrom.id) } },
+									{ $unwind: '$owner' },
+									{ $match: { 'owner.user': ObjectId(el.requestFrom.id) } },
+									{
+										$project: {
+											_id: 0,
+											id: 1,
+											name: 1,
+											summary: 1,
+											total_rating: 1,
+											cover: 1,
+											'owner.plat': 1
 										}
-									);
+									}
+								], (err, games) => {
+									let temp = {};
+									temp[el.requestFrom.username] = games;
+									modalData.push(temp);
+
+									cb();
+								});
 							} else {
 								cb();
 							}
@@ -425,10 +408,6 @@ module.exports = (app, passport, db) => {
 		);
 		res.redirect('/login');
 	});
-	app.route('/usernameExists').get((req, res) => {
-		req.flash('exists', 'Username is already taken. Please choose another.');
-		res.redirect('/login/register');
-	});
 
 	app.route('/noGamesForTrade').get((req, res) => {
 		req.flash(
@@ -438,18 +417,22 @@ module.exports = (app, passport, db) => {
 		res.redirect('/findGames');
 	});
 
-	app.route('/requestSent').get((req, res) => {
-		req.flash('requestSent', 'Your trade request has been sent!');
-		res.redirect('/tradeRequests');
-	});
-
 	app.route('/ownRequest').get((req, res) => {
 		req.flash('ownReq', 'Sorry, you can not request a trade with yourself.');
 		res.redirect('/');
 	});
 
-  app.route('/*')
-    .get((req, res) => {
-      res.redirect('/');
-    });
+	app.route('/requestSent').get((req, res) => {
+		req.flash('requestSent', 'Your trade request has been sent!');
+		res.redirect('/tradeRequests');
+	});
+
+	app.route('/usernameExists').get((req, res) => {
+		req.flash('exists', 'Username is already taken. Please choose another.');
+		res.redirect('/login/register');
+	});
+
+	app.route('/*').get((req, res) => {
+		res.redirect('/');
+	});
 };

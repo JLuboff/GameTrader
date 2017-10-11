@@ -5,7 +5,7 @@ const findGameByName = function(game, callback) {
 	const options = {
 		hostname: 'api-2445582011268.apicast.io',
 		headers: {
-			'user-key': 'f07eb68ccc69683f2d96ea50b9820ddd',
+			'user-key': process.env.APIKEY,
 			Accept: 'application/json'
 		},
 		port: 443,
@@ -16,7 +16,6 @@ const findGameByName = function(game, callback) {
 		method: 'GET'
 	};
 
-	console.log(options);
 	https.get(options, res => {
 		let data = '';
 		res.setEncoding('utf8');
