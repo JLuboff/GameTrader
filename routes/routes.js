@@ -120,7 +120,10 @@ module.exports = (app, passport, db) => {
 						return res.redirect('/usernameExists');
 					} else {
 						db.collection('users').insertOne(user);
-						res.redirect('/login');
+            req.login(user, (err) => {
+              if(err) throw err;
+              res.redirect('/');
+            })
 					}
 				});
 		});
@@ -307,7 +310,6 @@ module.exports = (app, passport, db) => {
 				.collection('users')
 				.findOne({ _id: ObjectId(userId) }, { email: 1 }, (err, email) => {
 					if (err) throw err;
-					console.log(email);
 					db.collection('users').updateOne(
 						{
 							_id: ObjectId(req.user._id),
@@ -387,7 +389,6 @@ module.exports = (app, passport, db) => {
 						},
 						err => {
 							if (err) throw err;
-							console.log(modalData);
 							res.render('traderequests.hbs', {
 								loggedIn: true,
 								requestSent,
